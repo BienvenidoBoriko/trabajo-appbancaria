@@ -2,7 +2,7 @@
 
 require_once('Conectar.php');
 
-class Productos_modelo
+class BancoCuentas
 {
     private $db;
     private $productos;
@@ -14,11 +14,11 @@ class Productos_modelo
         $this->productos = array();
     }
 
-    public function verificaProducto($idProducto)
+    public function verificaCuenta($nCuenta)
     {
         try {
-            $stmt = $this->db->prepare("SELECT * FROM productos WHERE codigo=:cod");
-            $stmt->execute(array(':cod' => $idProducto));
+            $stmt = $this->db->prepare("SELECT * FROM cuentas WHERE cu_ncu=:nc");
+            $stmt->execute(array(':nc' => $nCuenta));
             if (count($stmt->fetchAll()) > 0) {
                 $autenticado = true;
             } else {
@@ -51,17 +51,17 @@ class Productos_modelo
         }
         return $datos;
     }
-    public function crearProducto($codigo, $nombre, $precio, $stock)
+    public function grabarRegistro($nCuenta, $fecha,$hora,$desc,$importe)
     {
         try {
-            if (!$this->verificaProducto($codigo)) {
+            if (!$this->verificaCuenta($nCuenta)) {
 
-                if ($codigo != "") {
-                    $stmt = $this->db->prepare("INSERT INTO productos(codigo,nombre,precio,stock) VALUES(:cod,:nom,:prec,:stock)");
-                    $stmt->execute(array(':cod' => $codigo, ':nom' => $nombre, ':prec' => $precio, ':stock' => $stock));
+                if ($dni2 != "") {
+                    $stmt = $this->db->prepare("INSERT INTO movimientos(cu_ncu,cu_dn1,cu_sal) VALUES(:nc,:dni1,:saldo)");
+                    $stmt->execute(array(':nc' => $nCuenta, ':dni1' => $dni1,':saldo' => $saldo));
                 } else {
-                    $stmt = $this->db->prepare("INSERT INTO productos(nombre,precio,stock) VALUES(:cod,:nom,:prec,:stock)");
-                    $stmt->execute(array(':nom' => $nombre, ':prec' => $precio, ':stock' => $stock));
+                    $stmt = $this->db->prepare("INSERT INTO productos(cu_ncu,cu_dn1,cu_dn2,cu_sal) VALUES(:nc,:dni1,:dni2,:saldo)");
+                    $stmt->execute(array(':nc' => $nCuenta, ':dni1' => $dni1,':dni2' => $dni2,':saldo' => $saldo));
                 }
 
                 if ($stmt->rowCount() > 0) {
