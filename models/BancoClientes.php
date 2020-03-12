@@ -75,13 +75,13 @@ class BancoCuentas
         return $autenticado;
     }
 
-    public function borrarProducto($idProducto)
+    public function eliminarClientes($dni)
     {
         try {
-            if ($this->verificaProducto($idProducto)) {
+            if ($this->verificaCliente($dni)) {
 
-                $stmt = $this->db->prepare("DELETE FROM productos WHERE codigo=:cod");
-                $stmt->execute(array(':cod' => $idProducto));
+                $stmt = $this->db->prepare("DELETE FROM clientes WHERE cl_dni=:dni");
+                $stmt->execute(array(':dni' => $dni));
                 if ($stmt->rowCount() > 0) {
                     $eliminado = true;
                 } else {
@@ -102,9 +102,31 @@ class BancoCuentas
     public function modificarCliente($dni,$saldo)
     {
         try {
-            if ($this->verificaProducto($codigoA)) {
+            if ($this->verificaCliente($dni)) {
 
                 $stmt = $this->db->prepare("UPDATE clientes SET cl_ncu=cl_ncu+1,cl_sal=cl_sal+ :sal where cl_dni=:dni");
+                $stmt->execute(array(':sal'=>$saldo,':dni'=>$dni));
+                if ($stmt->rowCount() > 0) {
+                    $modificado = true;
+                } else {
+                    $modificado = false;
+                }
+                $stmt = null;
+                return $modificado;
+            } else {
+                return -1;
+            }
+        } catch (PDOException $e) {
+            die("¡Error!: " . $e->getMessage() . "<br/>");
+        }
+    }
+
+    public function modificarSaldo($dni,$saldo)
+    {
+        try {
+            if ($this->verificaCliente($dni)) {
+
+                $stmt = $this->db->prepare("UPDATE clientes SET cl_sal=cl_sal+ (:sal) where cl_dni=:dni");
                 $stmt->execute(array(':sal'=>$saldo,':dni'=>$dni));
                 if ($stmt->rowCount() > 0) {
                     $modificado = true;

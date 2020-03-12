@@ -31,23 +31,25 @@ class BancoCuentas
         return $autenticado;
     }
 
-    public function get_productos($desde, $hasta)
+    public function getClientes($nCuenta)
     {
         try {
-            $desde = intval($desde);
-            $hasta = intval($hasta);
-            if ($desde === 0 && $hasta === 0) {
-                $stmt = $this->db->query("SELECT * FROM productos");
-            } else if ($hasta !== 0) {
-                $stmt = $this->db->query("SELECT * FROM productos limit $desde,$hasta");
-            }
+            if (!$this->verificaCuenta($nCuenta)) {
+                $stmt = $this->db->prepare("SELECT cu_dn1,cu_dn2 FROM cuentas WHERE cu_ncu=:ncu");
+                $stmt->execute(array('ncu'=>$nCuenta));
 
-            if (!count($datos = $stmt->fetchAll(PDO::FETCH_ASSOC)) > 0) {
-                $datos = false;
+                $datos=$stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                if(count($datos)==0){
+                    $datos = false;
+                } 
+                $stmt = null;
+            } else {
+                $datos = -1;
             }
-            $res = null;
         } catch (PDOException $e) {
             die("¡Error!: " . $e->getMessage() . "<br/>");
+            $datos = -2;
         }
         return $datos;
     }
@@ -80,13 +82,13 @@ class BancoCuentas
         return $autenticado;
     }
 
-    public function borrarProducto($idProducto)
+    public function cierreCuenta($nCuenta)
     {
         try {
-            if ($this->verificaProducto($idProducto)) {
+            if ($this->verificaCuenta($nCuenta)) {
 
-                $stmt = $this->db->prepare("DELETE FROM productos WHERE codigo=:cod");
-                $stmt->execute(array(':cod' => $idProducto));
+                $stmt = $this->db->prepare("DELETE FROM cuentas WHERE cu_ncu=:ncu");
+                $stmt->execute(array(':ncu' => $nCuenta));
                 if ($stmt->rowCount() > 0) {
                     $eliminado = true;
                 } else {
@@ -111,6 +113,28 @@ class BancoCuentas
 
                 $stmt = $this->db->prepare("UPDATE productos SET codigo=:cod,nombre=:nom,precio=:pre,stock=:st where codigo=:codA");
                 $stmt->execute(array(':cod' => $codigoN, ':nom' => $nombre, ':pre' => $precio, ':st' => $stock, ':codA' => $codigoA));
+                if ($stmt->rowCount() > 0) {
+                    $modificado = true;
+                } else {
+                    $modificado = false;
+                }
+                $stmt = null;
+                return $modificado;
+            } else {
+                return -1;
+            }
+        } catch (PDOException $e) {
+            die("¡Error!: " . $e->getMessage() . "<br/>");
+        }
+    }
+
+    public function modificarSaldo($nCuenta,$saldo)
+    {
+        try {
+            if ($this->verificaCuenta($nCuenta)) {
+
+                $stmt = $this->db->prepare("UPDATE cuentas SET cu_sal=cu_sal+ (:sal) where cu_ncu=:ncu");
+                $stmt->execute(array(':sal'=>$saldo,':ncu'=>$nCuenta));
                 if ($stmt->rowCount() > 0) {
                     $modificado = true;
                 } else {

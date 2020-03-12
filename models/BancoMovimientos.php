@@ -31,23 +31,25 @@ class BancoCuentas
         return $autenticado;
     }
 
-    public function get_productos($desde, $hasta)
+    public function getMovimientos($nCuenta,$desde, $hasta)
     {
         try {
-            $desde = intval($desde);
-            $hasta = intval($hasta);
-            if ($desde === 0 && $hasta === 0) {
-                $stmt = $this->db->query("SELECT * FROM productos");
-            } else if ($hasta !== 0) {
-                $stmt = $this->db->query("SELECT * FROM productos limit $desde,$hasta");
-            }
+            if (!$this->verificaCuenta($nCuenta)) {
+                $stmt = $this->db->prepare("SELECT * FROM movimientos WHERE mo_fec BETWEEN :desde AND :hasta");
+                $stmt->execute(array('desde'=>$desde,'hasta'=>$hasta));
 
-            if (!count($datos = $stmt->fetchAll(PDO::FETCH_ASSOC)) > 0) {
-                $datos = false;
+                $datos=$stmt->fetchAll(PDO::FETCH_ASSOC);
+                
+                if(count($datos)==0){
+                    $datos = false;
+                } 
+                $stmt = null;
+            } else {
+                $datos = -1;
             }
-            $res = null;
         } catch (PDOException $e) {
             die("¡Error!: " . $e->getMessage() . "<br/>");
+            $datos = -2;
         }
         return $datos;
     }
@@ -56,14 +58,9 @@ class BancoCuentas
         try {
             if (!$this->verificaCuenta($nCuenta)) {
 
-                if ($dni2 != "") {
-                    $stmt = $this->db->prepare("INSERT INTO movimientos(cu_ncu,cu_dn1,cu_sal) VALUES(:nc,:dni1,:saldo)");
-                    $stmt->execute(array(':nc' => $nCuenta, ':dni1' => $dni1,':saldo' => $saldo));
-                } else {
-                    $stmt = $this->db->prepare("INSERT INTO productos(cu_ncu,cu_dn1,cu_dn2,cu_sal) VALUES(:nc,:dni1,:dni2,:saldo)");
-                    $stmt->execute(array(':nc' => $nCuenta, ':dni1' => $dni1,':dni2' => $dni2,':saldo' => $saldo));
-                }
-
+                $stmt = $this->db->prepare("INSERT INTO movimientos(mo_ncu,mo_fec,mo_hor,mo_des,mo_imp) VALUES(:nc,:fecha,:hora,:descr,:impor)");
+                $stmt->execute(array(':nc'=>$nCuenta,':fecha'=>$fecha,':hora'=>$hora,':descr'=>$desc,':impor'=>$importe));
+                
                 if ($stmt->rowCount() > 0) {
                     $autenticado = true;
                 } else {
@@ -80,13 +77,13 @@ class BancoCuentas
         return $autenticado;
     }
 
-    public function borrarProducto($idProducto)
+    public function eliminarMovimientos($nCuenta)
     {
         try {
-            if ($this->verificaProducto($idProducto)) {
+            if ($this->verificaCuenta($nCuenta)) {
 
-                $stmt = $this->db->prepare("DELETE FROM productos WHERE codigo=:cod");
-                $stmt->execute(array(':cod' => $idProducto));
+                $stmt = $this->db->prepare("DELETE FROM movimientos WHERE mo_ncu=:ncu");
+                $stmt->execute(array(':ncu' => $nCuenta));
                 if ($stmt->rowCount() > 0) {
                     $eliminado = true;
                 } else {
