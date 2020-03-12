@@ -1,6 +1,6 @@
 <?php
 
-require_once('Conectar.php');
+require_once('models/auxi/Conectar.php');
 
 class BancoCuentas
 {
