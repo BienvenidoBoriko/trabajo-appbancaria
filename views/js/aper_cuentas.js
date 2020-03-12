@@ -113,7 +113,7 @@ function registrar(e) {
         let mensaje = ` Se van a registrar los siguientes datos \n nº de cuenta = ${nCuenta}, \n dni1 = ${dni1}, \n dni2 = ${dni2}, \n importe = ${importe}.\n Estas conforme ?`
         let ok = confirm(mensaje);
         if (ok) {
-            let dato = JSON.stringify({ nCuenta: nCuenta, dni1: dni1, dni2: dni2, importe: importe });
+            let dato = JSON.stringify({ nCuenta: nCuenta, dni1: dni1, dni2: dni2, importe: importe, cont:'cuentas'});
             let peticion = new XMLHttpRequest();
             peticion.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {

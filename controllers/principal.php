@@ -1,14 +1,16 @@
 <?php 
-    require_once("models/*");
+    include("models/*");
+    $e =new BancoCuentas();
     $controladores= array('clientes','cuentas','movimientos');
-    if(isset($_GET['cont'])){
-        $controlador=filtrado($_GET['cont']);
-        if(in_array($_GET['cont'],$controladores)){
+    if(isset($_POST['cont'])){
+        $controlador=filtrado($_POST['cont']);
+        if(in_array($_POST['cont'],$controladores)){
             include("controllers/{$controlador}.php");
         }else{
             include('views/principal.php');
         }
     }else{
+        echo 'false';
         include('views/principal.php');
     }
 ?>
