@@ -5,13 +5,9 @@ require_once('Conectar.php');
 class BancoCuentas
 {
     private $db;
-    private $productos;
-
     public function __construct()
     {
-
         $this->db = Conectar::coneccion();
-        $this->productos = array();
     }
 
     public function verificaCuenta($nCuenta)
@@ -31,18 +27,18 @@ class BancoCuentas
         return $autenticado;
     }
 
-    public function getMovimientos($nCuenta,$desde, $hasta)
+    public function getMovimientos($nCuenta, $desde, $hasta)
     {
         try {
             if (!$this->verificaCuenta($nCuenta)) {
                 $stmt = $this->db->prepare("SELECT * FROM movimientos WHERE mo_fec BETWEEN :desde AND :hasta");
-                $stmt->execute(array('desde'=>$desde,'hasta'=>$hasta));
+                $stmt->execute(array('desde' => $desde, 'hasta' => $hasta));
 
-                $datos=$stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                if(count($datos)==0){
+                $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                if (count($datos) == 0) {
                     $datos = false;
-                } 
+                }
                 $stmt = null;
             } else {
                 $datos = -1;
@@ -53,28 +49,23 @@ class BancoCuentas
         }
         return $datos;
     }
-    public function grabarRegistro($nCuenta, $fecha,$hora,$desc,$importe)
+    public function grabarRegistro($nCuenta, $fecha, $hora, $desc, $importe)
     {
         try {
-            if (!$this->verificaCuenta($nCuenta)) {
 
-                $stmt = $this->db->prepare("INSERT INTO movimientos(mo_ncu,mo_fec,mo_hor,mo_des,mo_imp) VALUES(:nc,:fecha,:hora,:descr,:impor)");
-                $stmt->execute(array(':nc'=>$nCuenta,':fecha'=>$fecha,':hora'=>$hora,':descr'=>$desc,':impor'=>$importe));
-                
-                if ($stmt->rowCount() > 0) {
-                    $autenticado = true;
-                } else {
-                    $autenticado = false;
-                }
-                $stmt = null;
-                return $autenticado;
+            $stmt = $this->db->prepare("INSERT INTO movimientos(mo_ncu,mo_fec,mo_hor,mo_des,mo_imp) VALUES(:nc,:fecha,:hora,:descr,:impor)");
+            $stmt->execute(array(':nc' => $nCuenta, ':fecha' => $fecha, ':hora' => $hora, ':descr' => $desc, ':impor' => $importe));
+
+            if ($stmt->rowCount() > 0) {
+                $autenticado = true;
             } else {
-                return -1;
+                $autenticado = false;
             }
+            $stmt = null;
+            return $autenticado;
         } catch (PDOException $e) {
             die("¡Error!: " . $e->getMessage() . "<br/>");
         }
-        return $autenticado;
     }
 
     public function eliminarMovimientos($nCuenta)
@@ -99,27 +90,8 @@ class BancoCuentas
         }
     }
 
-
-
-    public function modificarProducto($codigoA, $codigoN, $nombre, $precio, $stock)
+    public function getDb()
     {
-        try {
-            if ($this->verificaProducto($codigoA)) {
-
-                $stmt = $this->db->prepare("UPDATE productos SET codigo=:cod,nombre=:nom,precio=:pre,stock=:st where codigo=:codA");
-                $stmt->execute(array(':cod' => $codigoN, ':nom' => $nombre, ':pre' => $precio, ':st' => $stock, ':codA' => $codigoA));
-                if ($stmt->rowCount() > 0) {
-                    $modificado = true;
-                } else {
-                    $modificado = false;
-                }
-                $stmt = null;
-                return $modificado;
-            } else {
-                return -1;
-            }
-        } catch (PDOException $e) {
-            die("¡Error!: " . $e->getMessage() . "<br/>");
-        }
+        return $this->db;
     }
 }

@@ -5,13 +5,10 @@ require_once('Conectar.php');
 class BancoCuentas
 {
     private $db;
-    private $productos;
 
     public function __construct()
     {
-
         $this->db = Conectar::coneccion();
-        $this->productos = array();
     }
 
     public function verificaCuenta($nCuenta)
@@ -36,13 +33,13 @@ class BancoCuentas
         try {
             if (!$this->verificaCuenta($nCuenta)) {
                 $stmt = $this->db->prepare("SELECT cu_dn1,cu_dn2 FROM cuentas WHERE cu_ncu=:ncu");
-                $stmt->execute(array('ncu'=>$nCuenta));
+                $stmt->execute(array('ncu' => $nCuenta));
 
-                $datos=$stmt->fetchAll(PDO::FETCH_ASSOC);
-                
-                if(count($datos)==0){
+                $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                if (count($datos) == 0) {
                     $datos = false;
-                } 
+                }
                 $stmt = null;
             } else {
                 $datos = -1;
@@ -60,10 +57,10 @@ class BancoCuentas
 
                 if ($dni2 != "") {
                     $stmt = $this->db->prepare("INSERT INTO cuentas(cu_ncu,cu_dn1,cu_sal) VALUES(:nc,:dni1,:saldo)");
-                    $stmt->execute(array(':nc' => $nCuenta, ':dni1' => $dni1,':saldo' => $saldo));
+                    $stmt->execute(array(':nc' => $nCuenta, ':dni1' => $dni1, ':saldo' => $saldo));
                 } else {
                     $stmt = $this->db->prepare("INSERT INTO productos(cu_ncu,cu_dn1,cu_dn2,cu_sal) VALUES(:nc,:dni1,:dni2,:saldo)");
-                    $stmt->execute(array(':nc' => $nCuenta, ':dni1' => $dni1,':dni2' => $dni2,':saldo' => $saldo));
+                    $stmt->execute(array(':nc' => $nCuenta, ':dni1' => $dni1, ':dni2' => $dni2, ':saldo' => $saldo));
                 }
 
                 if ($stmt->rowCount() > 0) {
@@ -82,6 +79,28 @@ class BancoCuentas
         return $autenticado;
     }
 
+    public function getSaldo($nCuenta)
+    {
+        try {
+            if ($this->verificaCuenta($nCuenta)) {
+                $stmt = $this->db->prepare("SELECT cu_sal FROM cuentas WHERE cu_ncu=:ncu");
+                $stmt->execute(array('ncu' => $nCuenta));
+
+                $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                if (count($datos) == 0) {
+                    $datos = false;
+                }
+                $stmt = null;
+            } else {
+                $datos = -1;
+            }
+        } catch (PDOException $e) {
+            die("¡Error!: " . $e->getMessage() . "<br/>");
+            $datos = -2;
+        }
+        return $datos;
+    }
     public function cierreCuenta($nCuenta)
     {
         try {
@@ -105,14 +124,13 @@ class BancoCuentas
     }
 
 
-
-    public function modificarProducto($codigoA, $codigoN, $nombre, $precio, $stock)
+    public function modificarSaldo($nCuenta, $saldo)
     {
         try {
-            if ($this->verificaProducto($codigoA)) {
+            if ($this->verificaCuenta($nCuenta)) {
 
-                $stmt = $this->db->prepare("UPDATE productos SET codigo=:cod,nombre=:nom,precio=:pre,stock=:st where codigo=:codA");
-                $stmt->execute(array(':cod' => $codigoN, ':nom' => $nombre, ':pre' => $precio, ':st' => $stock, ':codA' => $codigoA));
+                $stmt = $this->db->prepare("UPDATE cuentas SET cu_sal=cu_sal+ (:sal) where cu_ncu=:ncu");
+                $stmt->execute(array(':sal' => $saldo, ':ncu' => $nCuenta));
                 if ($stmt->rowCount() > 0) {
                     $modificado = true;
                 } else {
@@ -128,25 +146,8 @@ class BancoCuentas
         }
     }
 
-    public function modificarSaldo($nCuenta,$saldo)
+    public function getDb()
     {
-        try {
-            if ($this->verificaCuenta($nCuenta)) {
-
-                $stmt = $this->db->prepare("UPDATE cuentas SET cu_sal=cu_sal+ (:sal) where cu_ncu=:ncu");
-                $stmt->execute(array(':sal'=>$saldo,':ncu'=>$nCuenta));
-                if ($stmt->rowCount() > 0) {
-                    $modificado = true;
-                } else {
-                    $modificado = false;
-                }
-                $stmt = null;
-                return $modificado;
-            } else {
-                return -1;
-            }
-        } catch (PDOException $e) {
-            die("¡Error!: " . $e->getMessage() . "<br/>");
-        }
+        return $this->db;
     }
 }

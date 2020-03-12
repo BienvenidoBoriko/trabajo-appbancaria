@@ -5,13 +5,10 @@ require_once('Conectar.php');
 class BancoCuentas
 {
     private $db;
-    private $productos;
 
     public function __construct()
     {
-
         $this->db = Conectar::coneccion();
-        $this->productos = array();
     }
 
     public function verificaCliente($dni)
@@ -31,26 +28,6 @@ class BancoCuentas
         return $autenticado;
     }
 
-    public function get_productos($desde, $hasta)
-    {
-        try {
-            $desde = intval($desde);
-            $hasta = intval($hasta);
-            if ($desde === 0 && $hasta === 0) {
-                $stmt = $this->db->query("SELECT * FROM productos");
-            } else if ($hasta !== 0) {
-                $stmt = $this->db->query("SELECT * FROM productos limit $desde,$hasta");
-            }
-
-            if (!count($datos = $stmt->fetchAll(PDO::FETCH_ASSOC)) > 0) {
-                $datos = false;
-            }
-            $res = null;
-        } catch (PDOException $e) {
-            die("¡Error!: " . $e->getMessage() . "<br/>");
-        }
-        return $datos;
-    }
     public function grabarCliente($dni,$nombre,$dir,$tel,$ema,$fna,$fcl,$nCueAbiertas,$saldo)
     {
         try {
@@ -141,5 +118,9 @@ class BancoCuentas
         } catch (PDOException $e) {
             die("¡Error!: " . $e->getMessage() . "<br/>");
         }
+    }
+
+    public function getDb() {
+        return $this->db;
     }
 }
