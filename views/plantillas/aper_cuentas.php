@@ -1,5 +1,5 @@
 <h2 class="title">Apertura de cuentas </h2>
-    <form action="" method="post">
+    <form action="<?php echo $_SERVER["PHP_SELF"]; ?>" method="post">
         <div class="form-group col-md-6">
             <label for="id_nCuenta">Numero de Cuenta
             <input type="number" name="nCuenta" class="form-control" id="id_nCuenta" required="required" maxlength="10">
