@@ -113,7 +113,7 @@ function registrar(e) {
         let mensaje = ` Se van a registrar los siguientes datos \n nº de cuenta = ${nCuenta}, \n dni1 = ${dni1}, \n dni2 = ${dni2}, \n importe = ${importe}.\n Estas conforme ?`
         let ok = confirm(mensaje);
         if (ok) {
-            let dato = JSON.stringify({ nCuenta: nCuenta, dni1: dni1, dni2: dni2, importe: importe, cont: 'cuentas', opr: 1 });
+            let dato = JSON.stringify({ nCuenta: nCuenta, dni1: dni1, dni2: dni2, importe: importe, opr: 1 });
             let peticion = new XMLHttpRequest();
             peticion.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
@@ -123,7 +123,7 @@ function registrar(e) {
             }
             peticion.open('POST', "index1.php", true);
             peticion.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            peticion.send(`dato=${dato}`);
+            peticion.send(`dato=${dato}&cont=cuentas`);
         }
     }
 

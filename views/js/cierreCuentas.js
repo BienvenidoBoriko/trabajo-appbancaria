@@ -10,6 +10,7 @@ function validarFechas(fecha1, fecha2) {
     let fechasOk = '';
     fecha1 = new Date(fecha1);
     fecha2 = new Date(fecha2);
+    console.log(fecha2.getTime() + "de" + fecha1.getTime())
     if (fecha2.getTime() > fecha1.getTime()) {
         fechasOk = true;
     }
@@ -46,45 +47,19 @@ function validarCuenta(e) {
     }
 }
 
-function validar() {
-    let ok = true;
-    if (document.forms[0].fechaP.value == '') {
-        ok = false;
-        document.getElementById('efp').innerText = 'Error fecha incorreta';
-    } else {
-        document.getElementById('efp').innerText = '';
-    }
-
-    if (document.forms[0].fechaU.value == '') {
-        ok = false;
-        document.getElementById('efu').innerText = 'Error fecha incorreta';
-    } else {
-        if (validarFechas(document.forms[0].fechaP.value, document.forms[0].fechaU.value) === true) {
-            document.getElementById('efu').innerText = '';
-        } else {
-            ok = false;
-            document.getElementById('efu').innerText = 'Error fecha2 es menor que fecha1';
-        }
-    }
-
-    if (cValidos.length !== 1) {
-        ok = false;
-    }
-    return ok;
-}
 
 function realizar(e) {
+    console.log('click');
     if (validar()) {
         let nCuenta = document.forms[0].nCuenta.value;
-        let fechaP = document.forms[0].fechaP.value;
-        let fechaU = document.forms[0].fechaU.value;
         let mensaje = ` Se van a pedir los registros que correspondan con los siguientes datos \n nº de cuenta = ${nCuenta}, \n fechaP = ${fechaP}, \n fechaU = ${fechaU}, \n Estas conforme ?`
         let ok = confirm(mensaje);
         if (ok) {
-            let dato = JSON.stringify({ nCuenta: nCuenta, fechaP: fechaP, fechaU: fechaU, opr: 1 });
+            let dato = JSON.stringify({ nCuenta: nCuenta, opr: 2 });
             let peticion = new XMLHttpRequest();
             peticion.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
+                    console.log(this.responseText);
                     let dat = JSON.parse(this.responseText);
                     pintarRespuesta(dat);
                 }
@@ -92,13 +67,13 @@ function realizar(e) {
 
             peticion.open('POST', "index1.php", true);
             peticion.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            peticion.send(`dato=${dato}&cont=movimientos`);
+            peticion.send(`dato=${dato}&cont=cuentas`);
         }
     }
 
 }
 
-function pintarRespuesta(datos) {
+function pintarRespuesta(datos, tbody) {
 
     let tbody = document.getElementById("lm_tbody");
     let tabla = new Array();
