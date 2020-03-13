@@ -1,8 +1,8 @@
 <?php 
     $controladores= array('clientes','cuentas','movimientos');
-    if(isset($_POST['cont'])){
-        $controlador=filtrado($_POST['cont']);
-        if(in_array($_POST['cont'],$controladores)){
+    if(isset($_REQUEST['cont'])){
+        $controlador=filtrado($_REQUEST['cont']);
+        if(in_array($_REQUEST['cont'],$controladores)){
             include("controllers/{$controlador}.php");
         }else{
             include('views/principal.php');
