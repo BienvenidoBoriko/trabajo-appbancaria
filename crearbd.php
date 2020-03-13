@@ -15,6 +15,12 @@
         if ($db->connect_errno) {
             echo "Falló conexión a MySQL: (" . $db->connect_errno . ") " . $db->connect_error;
         }
+        /*
+        cl_ema VARCHAR(65) NOT NULL, email del cliente
+                        cl_fna DATE, fecha de nacimiento
+                        cl_fcl DATE        NOT NULL, fecha de alta como cliente
+                        cl_ncu TINYINT(2)  NOT NULL, numero de cuentas
+        */
         if (isset($_POST['crear'])) {
             $sentencia = <<<EOT
             SET PASSWORD = PASSWORD("");

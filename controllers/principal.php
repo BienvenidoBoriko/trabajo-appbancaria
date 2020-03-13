@@ -4,7 +4,9 @@
         $controlador=filtrado($_REQUEST['cont']);
         if(in_array($_REQUEST['cont'],$controladores)){
             include("controllers/{$controlador}.php");
+            echo 'noooooooooo';
         }else{
+            echo 'wiiiiiii';
             include('views/principal.php');
         }
     }else{

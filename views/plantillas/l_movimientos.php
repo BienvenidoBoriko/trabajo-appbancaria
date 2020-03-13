@@ -8,13 +8,13 @@
     </div>
     <div class="form-group col-md-6">
         <label for="id_fechaP">Fecha primer movimiento
-            <input type="datetime-local" required='required' name="fechaP" id="id_fechaP" <?php if (isset($_POST["fechaP"])) echo "value=\"" . $_POST["fechaP"] . "\""; ?> />
+            <input type="date" required='required' name="fechaP" id="id_fechaP" <?php if (isset($_POST["fechaP"])) echo "value=\"" . $_POST["fechaP"] . "\""; ?> />
             <span id="efp"></span>
         </label>
     </div>
     <div class="form-group col-md-6">
         <label for="id_fechaU">Fecha ultimo movimiento
-            <input type="datetime-local" required='required' name="fechaU" id="id_fechaU" <?php if (isset($_POST["fechaU"])) echo "value=\"" . $_POST["fechaU"] . "\""; ?> />
+            <input type="date" required='required' name="fechaU" id="id_fechaU" <?php if (isset($_POST["fechaU"])) echo "value=\"" . $_POST["fechaU"] . "\""; ?> />
             <span id="efu"></span>
         </label>
     </div>

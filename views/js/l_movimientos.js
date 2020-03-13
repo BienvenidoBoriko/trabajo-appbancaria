@@ -1,20 +1,21 @@
 let cValidos = Array();
 document.addEventListener("readystatechange", () => {
     if (document.readyState == "interactive") {
-        document.forms[0].ncuenta.addEventListener("focusout", validarCuenta, false);
+        document.forms[0].nCuenta.addEventListener("focusout", validarCuenta, false);
         document.forms[0].ver.addEventListener("click", realizar, false);
     }
 }, false);
 
 function validarFechas(fecha1, fecha2) {
-    fechasOk = false;
+    let fechasOk = '';
     fecha1 = new Date(fecha1);
     fecha2 = new Date(fecha2);
-    if (fecha2.getMilliseconds() > fecha1.getMilliseconds()) {
-        fechasOk = -1;
-    } else {
+    console.log(fecha2.getTime() + "de" + fecha1.getTime())
+    if (fecha2.getTime() > fecha1.getTime()) {
         fechasOk = true;
     }
+
+    return fechasOk;
 }
 
 function validarCuenta(e) {
@@ -34,7 +35,6 @@ function validarCuenta(e) {
     }
 
     if (nCuentaOk) {
-        document.forms[0].dni1.disabled = false;
         document.getElementById('enc').innerText = ' ';
         if (cValidos.find((v) => v == 'nCuenta') === undefined) {
             cValidos.push('nCuenta');
@@ -55,17 +55,19 @@ function validar() {
     } else {
         document.getElementById('efp').innerText = '';
     }
+
     if (document.forms[0].fechaU.value == '') {
         ok = false;
         document.getElementById('efu').innerText = 'Error fecha incorreta';
     } else {
-        if (validarFechas(document.forms[0].fechaP.value, document.forms[0].fechaU.value)) {
+        if (validarFechas(document.forms[0].fechaP.value, document.forms[0].fechaU.value) === true) {
             document.getElementById('efu').innerText = '';
         } else {
             ok = false;
-            document.getElementById('efu').innerText = 'Error fecha2 es mayor que fecha1';
+            document.getElementById('efu').innerText = 'Error fecha2 es menor que fecha1';
         }
     }
+
     if (cValidos.length !== 1) {
         ok = false;
     }
@@ -81,10 +83,11 @@ function realizar(e) {
         let mensaje = ` Se van a pedir los registros que correspondan con los siguientes datos \n nº de cuenta = ${nCuenta}, \n fechaP = ${fechaP}, \n fechaU = ${fechaU}, \n Estas conforme ?`
         let ok = confirm(mensaje);
         if (ok) {
-            let dato = JSON.stringify({ nCuenta: nCuenta, fechaP: fechaP, fechaU: fechaU, cont: 'movimientos', opr: 1 });
+            let dato = JSON.stringify({ nCuenta: nCuenta, fechaP: fechaP, fechaU: fechaU });
             let peticion = new XMLHttpRequest();
             peticion.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
+                    console.log(this.responseText);
                     let dat = JSON.parse(this.responseText);
                     pintarRespuesta(dat);
                 }
@@ -92,7 +95,7 @@ function realizar(e) {
 
             peticion.open('POST', "index1.php", true);
             peticion.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            peticion.send(`dato=${dato}`);
+            peticion.send(`dato=${dato}&cont=movimientos&opr=1`);
         }
     }
 

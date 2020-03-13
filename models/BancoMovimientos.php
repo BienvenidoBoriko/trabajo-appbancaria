@@ -2,7 +2,7 @@
 
 require_once('models/auxi/Conectar.php');
 
-class BancoCuentas
+class BancoMovimientos
 {
     private $db;
     public function __construct()
@@ -30,19 +30,15 @@ class BancoCuentas
     public function getMovimientos($nCuenta, $desde, $hasta)
     {
         try {
-            if (!$this->verificaCuenta($nCuenta)) {
-                $stmt = $this->db->prepare("SELECT * FROM movimientos WHERE mo_fec BETWEEN :desde AND :hasta");
-                $stmt->execute(array('desde' => $desde, 'hasta' => $hasta));
+            $stmt = $this->db->prepare("SELECT * FROM movimientos WHERE mo_fec BETWEEN :desde AND :hasta");
+            $stmt->execute(array('desde' => $desde, 'hasta' => $hasta));
 
-                $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                if (count($datos) == 0) {
-                    $datos = false;
-                }
-                $stmt = null;
-            } else {
-                $datos = -1;
+            if (count($datos) == 0) {
+                $datos = false;
             }
+            $stmt = null;
         } catch (PDOException $e) {
             die("¡Error!: " . $e->getMessage() . "<br/>");
             $datos = -2;
@@ -71,20 +67,15 @@ class BancoCuentas
     public function eliminarMovimientos($nCuenta)
     {
         try {
-            if ($this->verificaCuenta($nCuenta)) {
-
-                $stmt = $this->db->prepare("DELETE FROM movimientos WHERE mo_ncu=:ncu");
-                $stmt->execute(array(':ncu' => $nCuenta));
-                if ($stmt->rowCount() > 0) {
-                    $eliminado = true;
-                } else {
-                    $eliminado = false;
-                }
-                $stmt = null;
-                return $eliminado;
+            $stmt = $this->db->prepare("DELETE FROM movimientos WHERE mo_ncu=:ncu");
+            $stmt->execute(array(':ncu' => $nCuenta));
+            if ($stmt->rowCount() > 0) {
+                $eliminado = true;
             } else {
-                return -1;
+                $eliminado = false;
             }
+            $stmt = null;
+            return $eliminado;
         } catch (PDOException $e) {
             die("¡Error!: " . $e->getMessage() . "<br/>");
         }
