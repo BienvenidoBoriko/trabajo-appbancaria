@@ -60,7 +60,19 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'movimientos')) {
                 }
 
                 break;
-            case 2: 
+            case 2://eliminar movimientos
+                if (isset($datos["nCuenta"])) {
+                    $nCuenta = filtrado($datos["nCuenta"]);
+                  if($movimientos->eliminarMovimientos($nCuenta)){
+                    echo json_encode(array('el_mov'=>true));
+                  }else {
+                    $movimientos->getDb()->rollback();
+                    echo json_encode(array('el_mov'=>false));
+                  }
+
+                } else {
+                    echo json_encode(array('el_mov'=>-1));
+                } 
                 break;
         }
     } else {

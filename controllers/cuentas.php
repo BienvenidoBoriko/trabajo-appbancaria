@@ -68,15 +68,15 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'cuentas')) {
                 break;
             case 2: //cierre de cuentas
                 if (isset($datos["nCuenta"])) {
+                    $cuentas->getDb()->autocommit(false);
                     $nCuenta = filtrado($datos["nCuenta"]);
-                  if($cuentas->cierreCuenta($nCuenta)){
-                    echo json_encode(array('cierre'=>'cuenta cerrada'));
-                  }else {
-                    echo json_encode(array('cierre'=>'Error'));
-                  }
-
+                    if ($cuentas->cierreCuenta($nCuenta)) {
+                        echo json_encode(array('cierre' => true));
+                    } else {
+                        echo json_encode(array('cierre' => false));
+                    }
                 } else {
-                    echo json_encode(array('cierre'=>'Error con la cuenta'));
+                    echo json_encode(array('cierre' => 'Error con la cuenta'));
                 }
                 break;
             case 3: //verificar cuenta
@@ -85,10 +85,10 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'cuentas')) {
                     if (validarCuenta($nCuenta)) {
                         echo json_encode(array('cuenta' => true));
                     } else {
-                        echo json_encode(array('mensaje' => false));
+                        echo json_encode(array('cuenta' => false));
                     }
                 } else {
-                    echo json_encode(array('mensaje' => -1));
+                    echo json_encode(array('cuenta' => -1));
                 }
                 break;
             case 4: //obtener saldo de cuenta
@@ -97,19 +97,31 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'cuentas')) {
                     $saldo = $cuentas->getSaldo($nCuenta);
                     echo json_encode(array('saldo' => $saldo));
                 } else {
-                    echo json_encode(array('saldo' => 'error con la cuenta'));
+                    echo json_encode(array('saldo' => false));
                 }
                 break;
             case 5: //obtener titulares de cuenta
                 if (isset($datos["nCuenta"])) {
                     $nCuenta = filtrado($datos["nCuenta"]);
                     $titulares = $cuentas->getClientes($nCuenta);
-                    if($titulares!==false){
+                    if ($titulares !== false) {
                         echo json_encode(array('titulares' => $titulares));
                     }
-                    
                 } else {
                     echo json_encode(array('titulares' => 'error'));
+                }
+                break;
+            case 6: //obtener datos de cuenta
+                if (isset($datos["nCuenta"])) {
+                    $nCuenta = filtrado($datos["nCuenta"]);
+                    $datos = $cuentas->getDatosCuenta($nCuenta);
+                    if ($datos !== false) {
+                        echo json_encode(array('datos' => $datos));
+                    }else{
+                        echo json_encode(array('datos' => false));
+                    }
+                } else {
+                    echo json_encode(array('datos' => -1));
                 }
                 break;
         }

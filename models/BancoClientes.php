@@ -2,7 +2,7 @@
 
 require_once('models/auxi/Conectar.php');
 
-class BancoCuentas
+class BancoClientes
 {
     private $db;
 
@@ -74,7 +74,71 @@ class BancoCuentas
         }
     }
 
+    public function getNumCuenta($dni)
+    {
+        try {
+            if ($this->verificaCliente($dni)) {
 
+                $stmt = $this->db->prepare("SELECT cl_ncu FROM clientes WHERE cl_dni=:dni");
+                $stmt->execute(array(':dni' => $dni));
+                $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                if (count($datos) == 0) {
+                    $datos = false;
+                }
+                $stmt = null;
+            } else {
+                $datos = -1;
+            }
+        } catch (PDOException $e) {
+            die("¡Error!: " . $e->getMessage() . "<br/>");
+        }
+        return $datos;
+    }
+
+    public function getDatosCliente($dni)
+    {
+        try {
+            if ($this->verificaCliente($dni)) {
+
+                $stmt = $this->db->prepare("SELECT * FROM clientes WHERE cl_dni=:dni");
+                $stmt->execute(array(':dni' => $dni));
+                $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                if (count($datos) == 0) {
+                    $datos = false;
+                }
+                $stmt = null;
+            } else {
+                $datos = -1;
+            }
+        } catch (PDOException $e) {
+            die("¡Error!: " . $e->getMessage() . "<br/>");
+        }
+        return $datos;
+    }
+
+    public function modificarNumCuentas($dni)
+    {
+        try {
+            if ($this->verificaCliente($dni)) {
+
+                $stmt = $this->db->prepare("UPDATE clientes SET cl_ncu=cl_ncu-1 where cl_dni=:dni");
+                $stmt->execute(array(':dni'=>$dni));
+                if ($stmt->rowCount() > 0) {
+                    $modificado = true;
+                } else {
+                    $modificado = false;
+                }
+                $stmt = null;
+                return $modificado;
+            } else {
+                return -1;
+            }
+        } catch (PDOException $e) {
+            die("¡Error!: " . $e->getMessage() . "<br/>");
+        }
+    }
 
     public function modificarCliente($dni,$saldo)
     {

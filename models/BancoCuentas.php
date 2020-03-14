@@ -146,6 +146,28 @@ class BancoCuentas
         }
     }
 
+    public function getDatosCuenta($nCuenta)
+    {
+        try {
+            if ($this->verificaCuenta($nCuenta)) {
+
+                $stmt = $this->db->prepare("SELECT * FROM cuentas WHERE cu_ncu=:ncu");
+                $stmt->execute(array(':ncu' => $nCuenta));
+                $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                if (count($datos) == 0) {
+                    $datos = false;
+                }
+                $stmt = null;
+            } else {
+                $datos = -1;
+            }
+        } catch (PDOException $e) {
+            die("¡Error!: " . $e->getMessage() . "<br/>");
+        }
+        return $datos;
+    }
+
     public function getDb()
     {
         return $this->db;
