@@ -6,6 +6,8 @@ document.addEventListener("readystatechange", () => {
         document.forms[0].dni2.addEventListener("focusout", validarDni, false);
         document.forms[0].importe.addEventListener("focusout", validarImporte, false);
         document.forms[0].registrar.addEventListener("click", registrar, false);
+        document.forms[1].registrarCliente.addEventListener("click", registrarCliente, false);
+        document.getElementById('registrarClientes').style.display = 'none';
     }
 }, false);
 
@@ -34,7 +36,6 @@ function validarCuenta(e) {
         } else {
             nCuentaOk = false
         }
-
     } else {
         nCuentaOk = false;
     }
@@ -48,7 +49,6 @@ function validarCuenta(e) {
 
     } else {
         cValidos = cValidos.filter((v) => v != 'nCuenta');
-        console.log(cValidos);
         document.getElementById('enc').innerText = 'numero de cuenta incorrecto'
     }
 }
@@ -68,31 +68,36 @@ function validarDni(e) {
             }
         } catch (e) {
             dniOk = false;
-
         }
     }
 
     if (dniOk) {
         document.getElementById('e' + e.target.name).innerText = ' ';
-        if (e.target.name == 'dni1') {
-            document.forms[0].importe.disabled = false;
-            document.forms[0].dni2.disabled = false;
-            if (cValidos.find((v) => v == 'dni1') === undefined) {
-                cValidos.push('dni1');
-            }
-
-
-        } else if (e.target.name == 'dni2') {
-            if (e.target.value == document.forms[0].dni1.value && e.target.value.length > 0) {
-                cValidos = cValidos.filter((v) => v != 'dni2');
-                document.getElementById('edni2').innerText = 'error dni2 es igual que dni1';
-            } else {
-                if (cValidos.find((v) => v == e.target.name) === undefined) {
-                    cValidos.push(e.target.name);
-                }
+        if (!verifAltaUser(dni)) {
+            document.getElementById('registrarClientes').style.display = "block";
+            document.getElementById('e' + e.target.name).innerText = 'el cliente no existe';
+        } else {
+            if (e.target.name == 'dni1') {
                 document.forms[0].importe.disabled = false;
+                document.forms[0].dni2.disabled = false;
+                if (cValidos.find((v) => v == 'dni1') === undefined) {
+                    cValidos.push('dni1');
+                }
+
+
+            } else if (e.target.name == 'dni2') {
+                if (e.target.value == document.forms[0].dni1.value && e.target.value.length > 0) {
+                    cValidos = cValidos.filter((v) => v != 'dni2');
+                    document.getElementById('edni2').innerText = 'error dni2 es igual que dni1';
+                } else {
+                    if (cValidos.find((v) => v == e.target.name) === undefined) {
+                        cValidos.push(e.target.name);
+                    }
+                    document.forms[0].importe.disabled = false;
+                }
             }
         }
+
     } else {
         if (e.target.name == 'dni1') {
             document.forms[0].importe.disabled = true;
@@ -101,6 +106,47 @@ function validarDni(e) {
         cValidos = cValidos.filter((v) => v != e.target.name);
         document.getElementById('e' + e.target.name).innerText = 'Error dni incorrecto';
     }
+}
+
+function registrarCliente(e) {
+    const dni = document.forms[1].dni.value;
+    const nombre = document.forms[1].nom.value;
+    const dir = document.forms[1].dir.value;
+    const tel = document.forms[1].tel.value;
+    const email = document.forms[1].email.value;
+    const fNaz = document.forms[1].fNaz.value;
+    const saldo = document.forms[1].saldo.value;
+    const fActual = new Date();
+    fActual = fActual.getFullYear() + "-" + fActual.getMonth() + "-" + fActual.getDate();
+    if (validarForm2(dni, nombre, dir, tel, email, fNaz, saldo)) {
+        let dato = JSON.stringify({ dni: dni, nombre: nombre, dir: dir, tel: tel, email: email, fNaz: fNaz, fAlta: fActual, numCuen: 1, saldo: saldo, opr: 4 });
+        let peticion = new XMLHttpRequest();
+        peticion.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+                let dat = JSON.parse(this.responseText, true);
+                if (dat['cliente']) {
+                    alert('cliente registrado con exito');
+                }
+            }
+        }
+        peticion.open('POST', "index1.php", false);
+        peticion.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        peticion.send(`dato=${dato}&cont=clientes`);
+    }
+}
+
+function verifAltaUser(dni) {
+    let dato = JSON.stringify({ dni: dni, opr: 3 });
+    let peticion = new XMLHttpRequest();
+    peticion.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            let dat = JSON.parse(this.responseText, true);
+            return dat['cliente'];
+        }
+    }
+    peticion.open('POST', "index1.php", false);
+    peticion.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+    peticion.send(`dato=${dato}&cont=clientes`);
 }
 
 function registrar(e) {

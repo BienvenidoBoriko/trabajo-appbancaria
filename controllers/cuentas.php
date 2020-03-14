@@ -24,7 +24,7 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'cuentas')) {
                 }
 
                 if (isset($datos["dni1"])) {
-                    $dni1 = filtrado($_POST["dni1"]);
+                    $dni1 = filtrado($datos["dni1"]);
                     if (!validar_dni($dni1)) {
                         array_push($errores, "Error dni1 incorrecto");
                     }
