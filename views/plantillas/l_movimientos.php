@@ -1,3 +1,4 @@
+<div class="container movi">
 <h1>Lista de Movimientos</h1>
 <form action="<?php echo $_SERVER["PHP_SELF"]; ?>" method="POST" name="formu">
     <div class="form-group col-md-6">
@@ -20,9 +21,20 @@
     </div>
     <input type="button" value="Ver" name="ver">
 </form>
-
-<table id="l_movimientos">
+<div id="moverror"></div>
+<h2>Movimientos</h2>
+<table id="l_movimientos" class="table table-striped ">
+    <thead class="thead-dark">
+        <tr>
+            <th>Num-cuenta</th>
+            <th>Fecha-mov</th>
+            <th>Hora-mov</th>
+            <th>Descripcion-mov</th>
+            <th>Importe-mov</th>
+        </tr>
+    </thead>
     <tbody id="lm_tbody">
 
     </tbody>
 </table>
+</div>

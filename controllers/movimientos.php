@@ -50,7 +50,7 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'movimientos')) {
                 }
 
                 if (count($errores) > 0) {
-                    echo json_encode($errores);
+                    echo json_encode(array('mensaje' => $errores));
                 } else {
                     if ($datos = $movimientos->getMovimientos($nCuenta, $fechaP, $fechaU)) {
                         echo json_encode($datos);
@@ -88,12 +88,12 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'movimientos')) {
                 }
 
                 if (isset($datos["importe"])) {
-                    $saldo = filtrado($datos["importe"]);
-                    if (empty($saldo)) {
+                    $importe = filtrado($datos["importe"]);
+                    if (empty($importe)) {
                         array_push($errores, "Error el saldo no puede estar vacio");
-                    } else if (is_numeric($saldo)) {
-                        $saldo = intval($saldo);
-                        if ($saldo < 1) {
+                    } else if (is_numeric($importe)) {
+                        $importe = intval($importe);
+                        if ($importe < 1) {
                             array_push($errores, "Error el saldo no puede ser menor de 1");
                         }
                     }

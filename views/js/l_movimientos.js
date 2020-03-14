@@ -3,6 +3,7 @@ document.addEventListener("readystatechange", () => {
     if (document.readyState == "interactive") {
         document.forms[0].nCuenta.addEventListener("focusout", validarCuenta, false);
         document.forms[0].ver.addEventListener("click", realizar, false);
+        document.getElementById('l_movimientos').style.display = 'none';
     }
 }, false);
 
@@ -85,8 +86,16 @@ function realizar(e) {
             let peticion = new XMLHttpRequest();
             peticion.onreadystatechange = function() {
                 if (this.readyState == 4 && this.status == 200) {
+                    console.log(this.responseText);
                     let dat = JSON.parse(this.responseText);
-                    pintarRespuesta(dat);
+                    if (dat['mensaje'] === undefined) {
+                        vaciarTabla();
+                        document.getElementById('l_movimientos').style.display = 'block';
+                        pintarRespuesta(dat);
+                    } else {
+                        document.getElementById('moverror').innerText = dat['mensaje'];
+                    }
+
                 }
             }
 
@@ -99,20 +108,25 @@ function realizar(e) {
 }
 
 function pintarRespuesta(datos) {
-
     let tbody = document.getElementById("lm_tbody");
-    let tabla = new Array();
-    for (let dato in datos) {
+    for (let fila in datos) {
         let tr = document.createElement("tr");
-        textIndice = document.createTextNode(decodeURIComponent(dato));
-        tdIndice = document.createElement("td");
-        tdIndice.appendChild(textIndice);
-        tr.appendChild(tdIndice);
-        textValor = document.createTextNode(decodeURIComponent(datos[dato]));
-        tdValor = document.createElement("td");
-        tdValor.appendChild(textValor);
-        tr.appendChild(tdValor);
+        for (let dato in datos[fila]) {
+            textValor = document.createTextNode(decodeURIComponent(datos[fila][dato]));
+            tdValor = document.createElement("td");
+            tdValor.appendChild(textValor);
+            tr.appendChild(tdValor);
+        }
         tbody.appendChild(tr);
+    }
+}
+
+function vaciarTabla() {
+    let tbody = document.getElementById("lm_tbody");
+    if (tbody.hasChildNodes()) {
+        while (tbody.childNodes.length >= 1) {
+            tbody.removeChild(tbody.firstChild);
+        }
     }
 }
 

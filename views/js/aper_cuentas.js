@@ -230,6 +230,7 @@ function registrarMovi(nCuenta, desc, importe) {
     let peticion = new XMLHttpRequest();
     peticion.onreadystatechange = function() {
         if (this.readyState == 4 && this.status == 200) {
+            console.log(this.responseText);
             let dat = JSON.parse(this.responseText, true);
             if (dat['move'] === true) {
                 alert(`movimiento ${desc} registrado`);
