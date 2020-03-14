@@ -28,7 +28,9 @@
         <div class="form-group col-md-6">
             <input type="button" class="btn btn-primary" value="Registrar" name="registrar" id="id_registrar">
         </div>
+        <div id="errForm1"></div>
     </form>
+
 
     <div id="registrarClientes">
         <h3>Registrar Usuario</h3>
@@ -79,6 +81,7 @@
             <div class="form-group col-md-6">
                 <input type="button" class="btn btn-primary" value="Registrar" name="registrarCliente" id="registrarCliente">
             </div>
+            <div id="errForm2"></div>
         </form>
     </div>
 </div>

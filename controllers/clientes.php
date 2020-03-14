@@ -4,7 +4,8 @@ include('controllers/funcAuxi/funcionesAuxiliares.php');
 
 $clientes = new BancoClientes();
 $errores = [];
-if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'movimientos')) {
+
+if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'clientes')) {
     if (isset($_POST["dato"])) {
         $datos = json_decode($_POST["dato"], true);
         $opr = filtrado($datos['opr']);
@@ -59,6 +60,7 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'movimientos')) {
                 }
                 break;
             case 3: //verificar usuario
+
                 if (isset($datos["dni"])) {
                     $dni = filtrado($datos["dni"]);
                     $datos = $clientes->verificaCliente($dni);
@@ -163,12 +165,48 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'movimientos')) {
                 }
 
                 if (count($errores) > 0) {
-                    echo json_encode(Array('cliente'=>$errores));
+                    echo json_encode(array('cliente'=>$errores));
                 } else {
                     if ($clientes->grabarCliente($dni,$nombre,$dir,$tel,$email,$fNaz,$fAlta,$numCuen,$saldo) === true) {
-                        echo json_encode(Array('cliente'=>true));
+                        echo json_encode(array('cliente'=> true));
+                    }else{
+                        echo json_encode(array('cliente'=> 'hubo un error al intentar registrar el cliente'));
                     }
                 }
+                break;
+                case 5://actualiar numero de cuentas y saldo
+                    if (isset($datos["dni"])) {
+                        $dni = filtrado($datos["dni"]);
+                        if (!validar_dni($dni)) {
+                            array_push($errores, "Error dni incorrecto");
+                        }
+                    } else {
+                        array_push($errores, "Error dni incorrecto");
+                    }
+                    if (isset($datos["importe"])) {
+                        $saldo = filtrado($datos["importe"]);
+                        if (empty($saldo)) {
+                            array_push($errores, "Error el saldo no puede estar vacio");
+                        } else if (is_numeric($saldo)) {
+                            $saldo = intval($saldo);
+                            if ($saldo < 1) {
+                                array_push($errores, "Error el saldo no puede ser menor de 1");
+                            }
+                        }
+                    } else {
+                        array_push($errores, "Error importe no recibido");
+                    }
+                    
+    
+                    if (count($errores) > 0) {
+                        echo json_encode(array('cliente'=>$errores));
+                    } else {
+                        if ($clientes->modificarCliente($dni,$saldo) === true) {
+                            echo json_encode(array('cliente'=> true));
+                        }else{
+                            echo json_encode(array('cliente'=> 'hubo un error al intentar actualizar'));
+                        }
+                    }
                 break;
         }
     } else {

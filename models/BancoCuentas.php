@@ -55,11 +55,11 @@ class BancoCuentas
         try {
             if (!$this->verificaCuenta($nCuenta)) {
 
-                if ($dni2 != "") {
+                if ($dni2 == "") {
                     $stmt = $this->db->prepare("INSERT INTO cuentas(cu_ncu,cu_dn1,cu_sal) VALUES(:nc,:dni1,:saldo)");
                     $stmt->execute(array(':nc' => $nCuenta, ':dni1' => $dni1, ':saldo' => $saldo));
                 } else {
-                    $stmt = $this->db->prepare("INSERT INTO productos(cu_ncu,cu_dn1,cu_dn2,cu_sal) VALUES(:nc,:dni1,:dni2,:saldo)");
+                    $stmt = $this->db->prepare("INSERT INTO cuentas(cu_ncu,cu_dn1,cu_dn2,cu_sal) VALUES(:nc,:dni1,:dni2,:saldo)");
                     $stmt->execute(array(':nc' => $nCuenta, ':dni1' => $dni1, ':dni2' => $dni2, ':saldo' => $saldo));
                 }
 

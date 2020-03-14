@@ -58,6 +58,6 @@ function validar_email($str)
 
 function validarTelefono($numero)
 {
-    $reg = "#^\(?\d{2}\)?[\s\.-]?\d{4}[\s\.-]?\d{4}$#";
-    return (1 === preg_match($reg, $numero));
+    $matches = null;
+    return (1 === preg_match("/^(\+?34)?(6\d{2}|7[1-9]\d{1})\d{6}$/", $numero, $matches));
 }

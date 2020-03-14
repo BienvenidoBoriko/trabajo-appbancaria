@@ -36,7 +36,7 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'cuentas')) {
                     $dni2 = filtrado($datos["dni2"]);
                     if (!validar_dni($dni2)) {
                         array_push($errores, "Error dni2 incorrecto");
-                    } else if (strcmp($dn1, $dni2) !== 0) {
+                    } else if (strcmp($dni1, $dni2) === 0) {
                         array_push($errores, "Error dni2 es igual a dni1");
                     }
                 } else {
@@ -58,11 +58,12 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'cuentas')) {
                 }
 
                 if (count($errores) > 0) {
-                    $mensaje = implode('\n', $errores);
-                    header("Location: index1.php?mensaje=$mensaje");
+                    echo json_encode(array('cuenta' => $errores));
                 } else {
                     if ($cuentas->grabarRegistro($nCuenta, $dni1, $dni2, $importe) === true) {
-                        header("Location: index1.php?mensaje= registros insertados con exito");
+                        echo json_encode(array('cuenta' => true));
+                    }else{
+                        echo json_encode(array('cuenta' => false));
                     }
                 }
                 break;

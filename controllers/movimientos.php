@@ -54,25 +54,73 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'movimientos')) {
                 } else {
                     if ($datos = $movimientos->getMovimientos($nCuenta, $fechaP, $fechaU)) {
                         echo json_encode($datos);
-                    }else {
-                        echo json_encode(array('mensaje'=>'error no exiten movimientos'));
+                    } else {
+                        echo json_encode(array('mensaje' => 'error no exiten movimientos'));
                     }
                 }
 
                 break;
-            case 2://eliminar movimientos
+            case 2: //eliminar movimientos
                 if (isset($datos["nCuenta"])) {
                     $nCuenta = filtrado($datos["nCuenta"]);
-                  if($movimientos->eliminarMovimientos($nCuenta)){
-                    echo json_encode(array('el_mov'=>true));
-                  }else {
-                    $movimientos->getDb()->rollback();
-                    echo json_encode(array('el_mov'=>false));
-                  }
-
+                    if ($movimientos->eliminarMovimientos($nCuenta)) {
+                        echo json_encode(array('el_mov' => true));
+                    } else {
+                        $movimientos->getDb()->rollback();
+                        echo json_encode(array('el_mov' => false));
+                    }
                 } else {
-                    echo json_encode(array('el_mov'=>-1));
-                } 
+                    echo json_encode(array('el_mov' => -1));
+                }
+                break;
+            case 3: //registrar movimientos
+                if (isset($datos["nCuenta"])) {
+                    $nCuenta = filtrado($datos["nCuenta"]);
+                    if (validarCuenta($nCuenta)) {
+                        if ($cuentas->verificaCuenta($nCuenta) !== true) {
+                            array_push($errores, "Error la cuenta no existe");
+                        }
+                    } else {
+                        array_push($errores, "Error numero de cuenta invalido");
+                    }
+                } else {
+                    array_push($errores, "Error numero de cuenta invalido");
+                }
+
+                if (isset($datos["importe"])) {
+                    $saldo = filtrado($datos["importe"]);
+                    if (empty($saldo)) {
+                        array_push($errores, "Error el saldo no puede estar vacio");
+                    } else if (is_numeric($saldo)) {
+                        $saldo = intval($saldo);
+                        if ($saldo < 1) {
+                            array_push($errores, "Error el saldo no puede ser menor de 1");
+                        }
+                    }
+                } else {
+                    array_push($errores, "Error importe no recibido");
+                }
+                if (isset($datos["desc"])) {
+                    $desc = filtrado($datos["desc"]);
+                    if (strlen($desc) < 5) {
+                        array_push($errores, "Error descripcion long menor de 5");
+                    }
+                } else {
+                    array_push($errores, "Error en descripcion");
+                }
+
+                if (count($errores) > 0) {
+                    echo json_encode(array('move' => $errores));
+                } else {
+                    $date = new DateTime('NOW');
+                    $fecha= $date->format('Y-m-d');
+                    $hora=$date->format('H:i:s');
+                    if ($movimientos->grabarRegistro($nCuenta, $fecha, $hora, $desc, $importe)) {
+                        echo json_encode(array('move' => true));
+                    } else {
+                        echo json_encode(array('move' => 'error no exiten movimientos'));
+                    }
+                }
                 break;
         }
     } else {
