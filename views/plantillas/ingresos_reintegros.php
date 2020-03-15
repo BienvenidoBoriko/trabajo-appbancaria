@@ -17,13 +17,13 @@
         </div>
         <div class="form-group col-md-6">
             <label for="id_desc">Descripcion
-                <input type="text" class="form-control" name="desc" id="id_dni2" disabled="disabled" placeholder="opcional"><span>*</span>
+                <input type="text" class="form-control" name="desc" id="id_dni2" placeholder="opcional"><span>*</span>
                 <span id="edesc"></span>
             </label>
         </div>
         <div class="form-group col-md-6">
             <label for="id_importe">Importe
-                <input type="number" name="importe" class="form-control" id="id_importe" disabled="disabled" required="required">
+                <input type="number" name="importe" class="form-control" id="id_importe" required="required">
                 <span id="eimp"></span>
             </label>
         </div>

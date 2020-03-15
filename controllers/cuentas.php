@@ -127,12 +127,12 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'cuentas')) {
                     echo json_encode(array('datos' => -1));
                 }
                 break;
-            case 6: //modificar saldo
+            case 7: //modificar saldo
                 if (isset($datos["nCuenta"])) {
                     $nCuenta = filtrado($datos["nCuenta"]);
                     if (validarCuenta($nCuenta)) {
-                        if ($cuentas->verificaCuenta($nCuenta) === true) {
-                            array_push($errores, "Error la cuenta ya esta dada de alta");
+                        if ($cuentas->verificaCuenta($nCuenta) === false) {
+                            array_push($errores, "Error la cuenta no esta dada de alta");
                         }
                     } else {
                         array_push($errores, "Error numero de cuenta invalido");
@@ -178,7 +178,7 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'cuentas')) {
                 if (count($errores) > 0) {
                     echo json_encode(array('cuenta' => $errores));
                 } else {
-                    if ($cuentas->modificarSaldo($nCuenta, $importe) === true) {
+                    if ($cuentas->modificarSaldo($nCuenta, $importe)) {
                         echo json_encode(array('cuenta' => true));
                     } else {
                         echo json_encode(array('cuenta' => false));

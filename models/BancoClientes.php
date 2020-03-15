@@ -167,7 +167,7 @@ class BancoClientes
         try {
             if ($this->verificaCliente($dni)) {
 
-                $stmt = $this->db->prepare("UPDATE clientes SET cl_sal=cl_sal+ (:sal) where cl_dni=:dni");
+                $stmt = $this->db->prepare("UPDATE clientes SET cl_sal=`cl_sal` + :sal where cl_dni=:dni");
                 $stmt->execute(array(':sal'=>$saldo,':dni'=>$dni));
                 if ($stmt->rowCount() > 0) {
                     $modificado = true;

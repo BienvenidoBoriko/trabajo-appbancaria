@@ -118,7 +118,7 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'movimientos')) {
                     if ($movimientos->grabarRegistro($nCuenta, $fecha, $hora, $desc, $importe)) {
                         echo json_encode(array('move' => true));
                     } else {
-                        echo json_encode(array('move' => 'error no exiten movimientos'));
+                        echo json_encode(array('move' => 'error hubo un error al registrar el movimiento'));
                     }
                 }
                 break;

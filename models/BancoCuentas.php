@@ -31,7 +31,7 @@ class BancoCuentas
     public function getClientes($nCuenta)
     {
         try {
-            if (!$this->verificaCuenta($nCuenta)) {
+            if ($this->verificaCuenta($nCuenta)) {
                 $stmt = $this->db->prepare("SELECT cu_dn1,cu_dn2 FROM cuentas WHERE cu_ncu=:ncu");
                 $stmt->execute(array('ncu' => $nCuenta));
 
@@ -129,7 +129,7 @@ class BancoCuentas
         try {
             if ($this->verificaCuenta($nCuenta)) {
 
-                $stmt = $this->db->prepare("UPDATE cuentas SET cu_sal=cu_sal+ (:sal) where cu_ncu=:ncu");
+                $stmt = $this->db->prepare("UPDATE cuentas SET cu_sal= `cu_sal`+ :sal where cu_ncu=:ncu");
                 $stmt->execute(array(':sal' => $saldo, ':ncu' => $nCuenta));
                 if ($stmt->rowCount() > 0) {
                     $modificado = true;
