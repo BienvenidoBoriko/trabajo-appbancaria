@@ -62,7 +62,7 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'cuentas')) {
                 } else {
                     if ($cuentas->grabarRegistro($nCuenta, $dni1, $dni2, $importe) === true) {
                         echo json_encode(array('cuenta' => true));
-                    }else{
+                    } else {
                         echo json_encode(array('cuenta' => false));
                     }
                 }
@@ -107,9 +107,11 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'cuentas')) {
                     $titulares = $cuentas->getClientes($nCuenta);
                     if ($titulares !== false) {
                         echo json_encode(array('titulares' => $titulares));
+                    }else{
+                        echo json_encode(array('error' => 'hubo un error al obtener los titulares'));
                     }
                 } else {
-                    echo json_encode(array('titulares' => 'error'));
+                    echo json_encode(array('error' => 'no se ha recibido los datos'));
                 }
                 break;
             case 6: //obtener datos de cuenta
@@ -118,11 +120,69 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'cuentas')) {
                     $datos = $cuentas->getDatosCuenta($nCuenta);
                     if ($datos !== false) {
                         echo json_encode(array('datos' => $datos));
-                    }else{
+                    } else {
                         echo json_encode(array('datos' => false));
                     }
                 } else {
                     echo json_encode(array('datos' => -1));
+                }
+                break;
+            case 6: //modificar saldo
+                if (isset($datos["nCuenta"])) {
+                    $nCuenta = filtrado($datos["nCuenta"]);
+                    if (validarCuenta($nCuenta)) {
+                        if ($cuentas->verificaCuenta($nCuenta) === true) {
+                            array_push($errores, "Error la cuenta ya esta dada de alta");
+                        }
+                    } else {
+                        array_push($errores, "Error numero de cuenta invalido");
+                    }
+                } else {
+                    array_push($errores, "Error numero de cuenta invalido");
+                }
+
+                if (isset($datos["importe"])) {
+                    $importe = filtrado($datos["importe"]);
+                    if (empty($importe)) {
+                        array_push($errores, "Error el importe no puede estar vacio");
+                    } else if (is_numeric($importe)) {
+                        $importe = intval($importe);
+                        if ($importe < 1) {
+                            array_push($errores, "Error el importe no puede ser menor de 1");
+                        }
+                    }
+                } else {
+                    array_push($errores, "Error importe no recibido");
+                }
+
+                if (isset($datos["operacion"])) {
+                    $operacion = filtrado($datos["operacion"]);
+                    if (empty($operacion)) {
+                        array_push($errores, "Error operacion no puede estar vacio");
+                    } else if (is_numeric($operacion)) {
+                        $operacion = intval($operacion);
+                        if ($operacion!== 1 && $operacion !==2) {
+                            array_push($errores, "Error operacion desconocida");
+                        }else{
+                            if($operacion===1){
+                                $importe=$importe*(-1);
+                            }
+                        }
+                    }else{
+                        array_push($errores, "Error no es valida");
+                    }
+                } else {
+                    array_push($errores, "Error operacion no recibido");
+                }
+
+                if (count($errores) > 0) {
+                    echo json_encode(array('cuenta' => $errores));
+                } else {
+                    if ($cuentas->modificarSaldo($nCuenta, $importe) === true) {
+                        echo json_encode(array('cuenta' => true));
+                    } else {
+                        echo json_encode(array('cuenta' => false));
+                    }
                 }
                 break;
         }

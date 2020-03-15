@@ -208,6 +208,59 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'clientes')) {
                         }
                     }
                 break;
+                case 5://modificar saldo
+                    if (isset($datos["dni"])) {
+                        $dni = filtrado($datos["dni"]);
+                        if (!validar_dni($dni)) {
+                            array_push($errores, "Error dni incorrecto");
+                        }
+                    } else {
+                        array_push($errores, "Error dni incorrecto");
+                    }
+                    if (isset($datos["importe"])) {
+                        $saldo = filtrado($datos["importe"]);
+                        if (empty($saldo)) {
+                            array_push($errores, "Error el saldo no puede estar vacio");
+                        } else if (is_numeric($saldo)) {
+                            $saldo = intval($saldo);
+                            if ($saldo < 1) {
+                                array_push($errores, "Error el saldo no puede ser menor de 1");
+                            }
+                        }
+                    } else {
+                        array_push($errores, "Error importe no recibido");
+                    }
+                    
+                    if (isset($datos["operacion"])) {
+                        $operacion = filtrado($datos["operacion"]);
+                        if (empty($operacion)) {
+                            array_push($errores, "Error operacion no puede estar vacio");
+                        } else if (is_numeric($operacion)) {
+                            $operacion = intval($operacion);
+                            if ($operacion !== 1 && $operacion !==2) {
+                                array_push($errores, "Error operacion desconocida");
+                            }else{
+                                if($operacion===1){
+                                    $saldo=$saldo*(-1);
+                                }
+                            }
+                        }else{
+                            array_push($errores, "Error no es valida");
+                        }
+                    } else {
+                        array_push($errores, "Error operacion no recibido");
+                    }
+    
+                    if (count($errores) > 0) {
+                        echo json_encode(array('cliente'=>$errores));
+                    } else {
+                        if ($clientes-> modificarSaldo($dni,$saldo) === true) {
+                            echo json_encode(array('cliente'=> true));
+                        }else{
+                            echo json_encode(array('cliente'=> 'hubo un error al intentar actualizar'));
+                        }
+                    }
+                break;
         }
     } else {
         include('views/cierreCuentas.php');

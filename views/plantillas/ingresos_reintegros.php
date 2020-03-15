@@ -4,9 +4,10 @@
     <form action="" method="post">
         <div class="form-group col-md-6">
             <input type="radio" id="reintegro" name="operacion" value="1">
-            <label for="male">Reintegro</label><br>
+            <label for="reintegro">Reintegro</label><br>
             <input type="radio" id="ingreso" name="operacion" value="2">
-            <label for="female">Ingreso</label>
+            <label for="ingreso">Ingreso</label>
+            <span id="eopr"></span>
         </div>
         <div class="form-group col-md-6">
             <label for="id_nCuenta">Numero de Cuenta
@@ -17,7 +18,7 @@
         <div class="form-group col-md-6">
             <label for="id_desc">Descripcion
                 <input type="text" class="form-control" name="desc" id="id_dni2" disabled="disabled" placeholder="opcional"><span>*</span>
-                <span id="edni2"></span>
+                <span id="edesc"></span>
             </label>
         </div>
         <div class="form-group col-md-6">
@@ -27,7 +28,7 @@
             </label>
         </div>
         <div class="form-group col-md-6">
-            <input type="button" class="btn btn-primary" value="Registrar" name="registrarCliente" id="registrarCliente">
+            <input type="button" class="btn btn-primary" value="Realizar" name="realizar" id="realizar">
         </div>
         <div id="errForm2"></div>
     </form>
