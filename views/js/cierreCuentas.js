@@ -11,34 +11,34 @@ function validarNumCuenta(nCuenta) {
     let nCuentaOk = true;
     let dato = JSON.stringify({ nCuenta: nCuenta, opr: 3 });
     let cont = "cuentas";
-    petGenerico(dato, cont).then((datos) => {
-        console.log(datos)
-        if (datos['cuenta']) {
-            nCuentaOk = true;
-        } else if (datos['cuenta'] == false) {
-            nCuentaOk = -1;
-        } else if (datos['cuenta'] == -1) {
-            nCuentaOk = -2;
-        }
-    });
-    return nCuentaOk;
+    return petGenerico(dato, cont);
 }
 
-function verSaldoCuenta(nCuenta) {
+async function verSaldoCuenta(nCuenta) {
     let nCuentaOk = true;
     let dato = JSON.stringify({ nCuenta: nCuenta, opr: 4 });
     let cont = "cuentas";
-    petGenerico(dato, cont).then((datos) => {
-        console.log(datos)
-        if (datos['saldo'] == 0) {
-            nCuentaOk = -3;
-        } else if (datos['saldo'] === false) {
-            nCuentaOk = false;
-        } else {
-            nCuentaOk = true;
+    return await petGenerico(dato, cont);
+
+}
+
+function auxiValidarCuenta(nCuentaOk) {
+    console.log(nCuentaOk);
+    if (nCuentaOk == true) {
+        document.getElementById('enc').innerText = ' ';
+        if (cValidos.find((v) => v == 'nCuenta') === undefined) {
+            cValidos.push('nCuenta');
         }
-    });
-    return nCuentaOk;
+    } else {
+        cValidos = cValidos.filter((v) => v != 'nCuenta');
+        if (nCuentaOk == false) {
+            document.getElementById('enc').innerText = 'numero de cuenta incorrecto';
+        } else if (nCuentaOk == -1) {
+            document.getElementById('enc').innerText = 'La cuenta no existe';
+        } else if (nCuentaOk == -3) {
+            document.getElementById('enc').innerText = 'La cuenta no esta vacia';
+        }
+    }
 }
 
 function validarCuenta(e) {
@@ -48,35 +48,33 @@ function validarCuenta(e) {
         let cpNcuenta = [...nCuenta];
         cpNcuenta.pop();
         if (cpNcuenta.reduce((acu, valor) => acu + valor) % 9 === nCuenta[nCuenta.length - 1]) {
-            nCuentaOk = validarNumCuenta(e.target.value);
-            if (nCuentaOk) {
-                nCuentaOk = verSaldoCuenta(e.target.value);
-            }
+            nCuentaOk = validarNumCuenta(e.target.value).then((datos) => {
+                if (datos['cuenta']) {
+                    nCuentaOk = verSaldoCuenta(e.target.value).then((datos) => {
+                        if (datos['saldo'] == -1) {
+                            auxiValidarCuenta(-1);
+                        } else if (datos['cuenta'] == false) {
+                            auxiValidarCuenta(false);
+                        } else if ((typeof datos['cuenta']) === 'Array') {
+                            auxiValidarCuenta(-3);
+                        } else {
+                            auxiValidarCuenta(true);
+                        }
+                    });
+                } else if (datos['cuenta'] == false) {
+                    auxiValidarCuenta(-1);
+                } else if (datos['cuenta'] == -1) {
+                    auxiValidarCuenta(false);
+                }
+            });
         } else {
-            nCuentaOk = false
+            auxiValidarCuenta(false);
         }
 
     } else {
-        nCuentaOk = false;
+        auxiValidarCuenta(false);
     }
-    if (nCuentaOk) {
-        document.getElementById('enc').innerText = ' ';
-        if (cValidos.find((v) => v == 'nCuenta') === undefined) {
-            cValidos.push('nCuenta');
-        }
-        pedirDatos(e.target.value);
-    } else {
-        cValidos = cValidos.filter((v) => v != 'nCuenta');
-        if (nCuentaOk == false || nCuentaOk == -2) {
-            document.getElementById('enc').innerText = 'numero de cuenta incorrecto';
-        } else if (nCuentaOk == -1) {
-            document.getElementById('enc').innerText = 'La cuenta no existe';
-        } else if (nCuentaOk == -3) {
-            document.getElementById('enc').innerText = 'La cuenta no esta vacia';
-        } else {
-            document.getElementById('enc').innerText = 'nose';
-        }
-    }
+
 }
 
 function validar() {
@@ -88,26 +86,34 @@ function validar() {
 }
 
 function realizar(e) {
-    console.log('click');
     if (validar()) {
         let nCuenta = document.forms[0].nCuenta.value;
 
-        let mensaje = ` Se van a pedir los registros que correspondan con los siguientes datos \n nº de cuenta = ${nCuenta}, \n fechaP = ${fechaP}, \n fechaU = ${fechaU}, \n Estas conforme ?`
+        let mensaje = ` Se va a eliminar los registros correspondientes a la \ncuenta = ${nCuenta}, \n Estas conforme ?`
         let ok = confirm(mensaje);
         if (ok) {
-            if (eliminarCuenta(nCuenta)['cierre'] === true) {
-                if (eliminarClientes(nCuenta)['el_client'] === true) {
-                    if (eliminarMov(nCuenta)['el_mov'] === true) {
-                        alert('datos eliminados con exito');
-                    } else {
-                        alert('Hubo un error al eliminar los movimientos');
-                    }
+            eliminarCuenta(nCuenta).then((datos) => {
+                if (datos['cierre']) {
+                    eliminarClientes(nCuenta).then((cliente) => {
+                        if (cliente['el_client']) {
+                            eliminarMov(nCuenta).then((mov) => {
+                                if (mov['el_mov']) {
+                                    alert('datos eliminados con exito');
+                                } else {
+                                    alert('Hubo un error al eliminar los movimientos');
+                                }
+                            })
+
+                        } else {
+                            alert('Hubo un error al eliminar los clientes');
+                        }
+                    })
+
                 } else {
-                    alert('Hubo un error al eliminar los clientes');
+                    alert('Hubo un error al eliminar la cuenta');
                 }
-            } else {
-                alert('Hubo un error al eliminar la cuenta');
-            }
+            });
+
         }
     }
 
@@ -153,30 +159,19 @@ function eliminarClientes(nCuenta) {
 }
 
 function pedirDatos(nCuenta) {
-    console.log('llamado')
     pedirDatCuenta(nCuenta).then((datos) => pintarDatos(datos['datos'], 'c_tbody'))
     pedirClientes(nCuenta).then((clientes) => {
         const dni1 = clientes['titulares'][0]['cu_dn1'];
         const dni2 = clientes['titulares'][0]['cu_dn2'];
         pedirDatosClientes(dni1).then((datosDni1) => {
-            console.log(datosDni1)
             pintarDatos(datosDni1['datos'], 'tc_tbody');
         });
         if (dni2 != '') {
             pedirDatosClientes(dni2).then((datosDni2) => {
-                console.log(datosDni2)
                 pintarDatos(datosDni2['datos'], 'tc_tbody');
             });
         }
     });
-    //const datosDni1 = pedirDatosClientes(dni1);
-    //pintarDatos(datosDni1, 'tc_tbody');
-    //const dni2 = clientes['cu_dn2'];
-    /* if (dni2 != '') {
-        const datosDni2 = pedirDatosClientes(dni2);
-        pintarDatos(datosDni2, 'tc_tbody');
-    }
- */
 }
 
 function pedirDatCuenta(nCuenta) {

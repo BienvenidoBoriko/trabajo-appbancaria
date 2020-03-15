@@ -15,29 +15,21 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'clientes')) {
                     $dni = filtrado($datos["dni"]);
                     if ($clientes->getNumCuenta($dni) == 1) {
                         if ($clientes->eliminarClientes($dni)) {
-                            $clientes->getDb()->commit();
-                            $clientes->getDb()->autocommit(true);
                             $oprOk = true;
                         } else {
                             $oprOk = false;
-                            $clientes->getDb()->rollback();
-                            $clientes->getDb()->autocommit(true);
                         }
                     } else if ($clientes->getNumCuenta($dni) > 1) {
                         if ($clientes->modificarNumCuentas($dni)) {
                             $oprOk = true;
-                            $clientes->getDb()->commit();
-                            $clientes->getDb()->autocommit(true);
                         } else {
                             $oprOk = false;
-                            $clientes->getDb()->rollback();
-                            $clientes->getDb()->autocommit(true);
                         }
                     }
                     if ($oprOk) {
                         echo json_encode(array('el_client' => true));
                     } else {
-                        $movimientos->getDb()->rollback();
+                        $clientes->getDb()->rollback();
                         echo json_encode(array('el_client' => false));
                     }
                 } else {
@@ -143,8 +135,8 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'clientes')) {
                         array_push($errores, "Error el saldo no puede estar vacio");
                     } else if (is_numeric($saldo)) {
                         $saldo = intval($saldo);
-                        if ($saldo < 1) {
-                            array_push($errores, "Error el saldo no puede ser menor de 1");
+                        if ($saldo > 1) {
+                            array_push($errores, "Error el saldo no puede ser mayor de uno");
                         }
                     }
                 } else {
@@ -152,14 +144,14 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'clientes')) {
                 }
                 if (isset($datos["numCuen"])) {
                     $numCuen = filtrado($datos["numCuen"]);
-                    if (empty($numCuen)) {
-                        array_push($errores, "Error el numero de cuentas no puede estar vacio");
-                    } else if (is_numeric($numCuen)) {
+                   if (is_numeric($numCuen)) {
                         $numCuen = intval($numCuen);
-                        if ($numCuen < 1) {
+                        if ($numCuen > 0) {
                             array_push($errores, "Error el numero de cuentas no puede ser menor de 1");
                         }
-                    }
+                    } else{
+                        array_push($errores, "Error el numero de cuentas tiene que ser numerico");
+                    } 
                 } else {
                     array_push($errores, "Error numero de cuentas");
                 }

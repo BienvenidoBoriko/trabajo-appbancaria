@@ -89,7 +89,7 @@ class BancoCuentas
                 $datos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                 if (count($datos) == 0) {
-                    $datos = false;
+                    $datos = -1;
                 }
                 $stmt = null;
             } else {
@@ -97,7 +97,6 @@ class BancoCuentas
             }
         } catch (PDOException $e) {
             die("¡Error!: " . $e->getMessage() . "<br/>");
-            $datos = -2;
         }
         return $datos;
     }
@@ -171,5 +170,9 @@ class BancoCuentas
     public function getDb()
     {
         return $this->db;
+    }
+
+    public function iniciarTrans(){
+    
     }
 }

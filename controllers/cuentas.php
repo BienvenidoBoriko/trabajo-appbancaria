@@ -69,11 +69,12 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'cuentas')) {
                 break;
             case 2: //cierre de cuentas
                 if (isset($datos["nCuenta"])) {
-                    $cuentas->getDb()->autocommit(false);
+                    $cuentas->getDb()->beginTransaction();
                     $nCuenta = filtrado($datos["nCuenta"]);
                     if ($cuentas->cierreCuenta($nCuenta)) {
                         echo json_encode(array('cierre' => true));
                     } else {
+                        $cuentas->getDb()->rollback();
                         echo json_encode(array('cierre' => false));
                     }
                 } else {
@@ -96,7 +97,11 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'cuentas')) {
                 if (isset($datos["nCuenta"])) {
                     $nCuenta = filtrado($datos["nCuenta"]);
                     $saldo = $cuentas->getSaldo($nCuenta);
-                    echo json_encode(array('saldo' => $saldo));
+                    if(is_array($saldo)){
+                        echo json_encode(array('saldo' => $saldo));
+                    }else if($saldo===-1){
+                        echo json_encode(array('saldo' => -1));
+                    }
                 } else {
                     echo json_encode(array('saldo' => false));
                 }

@@ -73,12 +73,6 @@
                 </label>
             </div>
             <div class="form-group col-md-6">
-                <label for="id_saldo">Saldo
-                    <input type="number" name="saldo" class="form-control" id="id_saldo"  required="required">
-                    <span id="esaldo"></span>
-                </label>
-            </div>
-            <div class="form-group col-md-6">
                 <input type="button" class="btn btn-primary" value="Registrar" name="registrarCliente" id="registrarCliente">
             </div>
             <div id="errForm2"></div>

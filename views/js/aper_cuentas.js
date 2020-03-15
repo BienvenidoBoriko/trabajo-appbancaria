@@ -128,8 +128,8 @@ function registrarCliente(e) {
     let fNaz = document.forms[1].fNaz.value;
     let fActual = new Date();
     fActual = fActual.getFullYear() + "-" + fActual.getMonth() + "-" + fActual.getDate();
-    if (validarForm2(dni, nombre, dir, tel, email, fNaz, saldo)) {
-        let dato = JSON.stringify({ dni: dni, nombre: nombre, dir: dir, tel: tel, email: email, fNaz: fNaz, fAlta: fActual, numCuen: 0, saldo: 0, opr: 4 });
+    if (validarForm2(dni, nombre, dir, tel, email, fNaz)) {
+        let dato = JSON.stringify({ dni: dni, nombre: nombre, dir: dir, tel: tel, email: email, fNaz: fNaz, fAlta: fActual, numCuen: 0, saldo: 1, opr: 4 });
         let peticion = new XMLHttpRequest();
         peticion.onreadystatechange = function() {
             if (this.readyState == 4 && this.status == 200) {
@@ -150,17 +150,22 @@ function registrarCliente(e) {
     }
 }
 
-async function verifAltaUser(dni) {
+function verifAltaUser(dni) {
     let dato = JSON.stringify({ dni: dni, opr: 3 });
-    const location = 'localhost';
-    const path = '/javascript/trabajo-appbancaria/index1.php';
-    let datos = `dato=${dato}&cont=clientes`
+    let cont = "clientes";
+    return petGenerico(dato, cont);
+}
+
+async function petGenerico(dato, cont) {
+    const location = "localhost";
+    const path = "/javascript/trabajo-appbancaria/index1.php";
+    let datos = `dato=${dato}&cont=${cont}`;
     const settings = {
-        method: 'POST',
+        method: "POST",
         body: datos,
         headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded',
+            Accept: "application/json",
+            "Content-Type": "application/x-www-form-urlencoded"
         }
     };
     try {
@@ -189,7 +194,9 @@ function registrar(e) {
                     if (dat['cuenta']) {
                         alert('cuenta registrada correctamente');
                         incrementarNumCuen(dni1, importe);
+                        console.log(cValidos);
                         if (cValidos.find((v) => v == 'dni2') !== undefined) {
+                            console.log('sazca');
                             incrementarNumCuen(dni2, importe);
                         }
                         registrarMovi(nCuenta, `apertura de cuenta ${nCuenta}`, importe);
@@ -209,37 +216,24 @@ function registrar(e) {
 
 function incrementarNumCuen(dni, importe) {
     let dato = JSON.stringify({ dni: dni, importe: importe, opr: 5 });
-    let peticion = new XMLHttpRequest();
-    peticion.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            let dat = JSON.parse(this.responseText, true);
-            if (dat['cliente'] === true) {
-                alert(`datos del cliente ${dni} actualizados`);
-            } else {
-                document.getElementById('errForm1').innerText = dat['cliente'];
-            }
+    let cont = "clientes";
+    petGenerico(dato, cont).then((dat) => {
+        if (dat['cliente'] === true) {
+            alert(`datos del cliente ${dni} actualizados`);
+        } else {
+            document.getElementById('errForm1').innerText = dat['cliente'];
         }
-    }
-    peticion.open('POST', "index1.php", true);
-    peticion.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    peticion.send(`dato=${dato}&cont=clientes`);
+    })
 }
 
 function registrarMovi(nCuenta, desc, importe) {
     let dato = JSON.stringify({ nCuenta: nCuenta, desc: desc, importe: importe, opr: 3 });
-    let peticion = new XMLHttpRequest();
-    peticion.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            console.log(this.responseText);
-            let dat = JSON.parse(this.responseText, true);
-            if (dat['move'] === true) {
-                alert(`movimiento ${desc} registrado`);
-            } else {
-                document.getElementById('errForm1').innerText = dat['move'];
-            }
+    let cont = "movimientos";
+    petGenerico(dato, cont).then((dat) => {
+        if (dat['move'] === true) {
+            alert(`movimiento ${desc} registrado`);
+        } else {
+            document.getElementById('errForm1').innerText = dat['move'];
         }
-    }
-    peticion.open('POST', "index1.php", true);
-    peticion.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    peticion.send(`dato=${dato}&cont=movimientos`);
+    })
 }
