@@ -19,7 +19,10 @@
                 <span id="efu"></span>
             </label>
         </div>
-        <input type="button" value="Ver" name="ver">
+        <div class="form-group col-md-6">
+            <input type="button" class="btn btn-primary" value="Ver" name="ver" id="realizar">
+        </div>
+
     </form>
     <div id="moverror"></div>
     <h2>Movimientos</h2>
