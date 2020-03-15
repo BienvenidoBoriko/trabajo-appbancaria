@@ -2,66 +2,43 @@ let cValidos = Array();
 document.addEventListener("readystatechange", () => {
     if (document.readyState == "interactive") {
         document.forms[0].nCuenta.addEventListener("focusout", validarCuenta, false);
-        document.forms[0].ver.addEventListener("click", realizar, false);
+        document.forms[0].cerrar.addEventListener("click", realizar, false);
     }
 }, false);
 
-function validarFechas(fecha1, fecha2) {
-    let fechasOk = '';
-    fecha1 = new Date(fecha1);
-    fecha2 = new Date(fecha2);
-    console.log(fecha2.getTime() + "de" + fecha1.getTime())
-    if (fecha2.getTime() > fecha1.getTime()) {
-        fechasOk = true;
-    }
-
-    return fechasOk;
-}
 
 function validarNumCuenta(nCuenta) {
     let nCuentaOk = true;
     let dato = JSON.stringify({ nCuenta: nCuenta, opr: 3 });
-    let peticion = new XMLHttpRequest();
-    peticion.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            console.log(this.responseText);
-            let dat = JSON.parse(this.responseText);
-            if (dat['cuenta'] === true) {
-                nCuentaOk = true;
-            } else if (dat['cuenta'] === false) {
-                nCuentaOk = -1;
-            } else if (dat['cuenta'] === -1) {
-                nCuentaOk = -2;
-            }
-            return nCuenta;
+    let cont = "cuentas";
+    petGenerico(dato, cont).then((datos) => {
+        console.log(datos)
+        if (datos['cuenta']) {
+            nCuentaOk = true;
+        } else if (datos['cuenta'] == false) {
+            nCuentaOk = -1;
+        } else if (datos['cuenta'] == -1) {
+            nCuentaOk = -2;
         }
-    }
-    peticion.open('POST', "index1.php", true);
-    peticion.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    peticion.send(`dato=${dato}&cont=cuentas`);
+    });
+    return nCuentaOk;
 }
 
 function verSaldoCuenta(nCuenta) {
     let nCuentaOk = true;
     let dato = JSON.stringify({ nCuenta: nCuenta, opr: 4 });
-    let peticion = new XMLHttpRequest();
-    peticion.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            console.log(this.responseText);
-            let dat = JSON.parse(this.responseText);
-            if (dat['saldo'] == 0) {
-                nCuentaOk = -3;
-            } else if (dat['saldo'] === false) {
-                nCuentaOk = false;
-            } else {
-                nCuentaOk = true;
-            }
-            return nCuenta;
+    let cont = "cuentas";
+    petGenerico(dato, cont).then((datos) => {
+        console.log(datos)
+        if (datos['saldo'] == 0) {
+            nCuentaOk = -3;
+        } else if (datos['saldo'] === false) {
+            nCuentaOk = false;
+        } else {
+            nCuentaOk = true;
         }
-    }
-    peticion.open('POST', "index1.php", true);
-    peticion.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    peticion.send(`dato=${dato}&cont=cuentas`);
+    });
+    return nCuentaOk;
 }
 
 function validarCuenta(e) {
@@ -82,21 +59,22 @@ function validarCuenta(e) {
     } else {
         nCuentaOk = false;
     }
-
     if (nCuentaOk) {
         document.getElementById('enc').innerText = ' ';
         if (cValidos.find((v) => v == 'nCuenta') === undefined) {
             cValidos.push('nCuenta');
         }
-        pintarDatos(e.target.value);
+        pedirDatos(e.target.value);
     } else {
         cValidos = cValidos.filter((v) => v != 'nCuenta');
-        if (nCuentaOk === false || nCuentaOk === -2) {
+        if (nCuentaOk == false || nCuentaOk == -2) {
             document.getElementById('enc').innerText = 'numero de cuenta incorrecto';
-        } else if (nCuentaOk === -1) {
+        } else if (nCuentaOk == -1) {
             document.getElementById('enc').innerText = 'La cuenta no existe';
-        } else if (nCuentaOk === -3) {
+        } else if (nCuentaOk == -3) {
             document.getElementById('enc').innerText = 'La cuenta no esta vacia';
+        } else {
+            document.getElementById('enc').innerText = 'nose';
         }
     }
 }
@@ -135,123 +113,109 @@ function realizar(e) {
 
 }
 
+async function petGenerico(dato, cont) {
+    const location = "localhost";
+    const path = "/javascript/trabajo-appbancaria/index1.php";
+    let datos = `dato=${dato}&cont=${cont}`;
+    const settings = {
+        method: "POST",
+        body: datos,
+        headers: {
+            Accept: "application/json",
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+    };
+    try {
+        const fetchResponse = await fetch(`http://${location}${path}`, settings);
+        const data = await fetchResponse.json();
+        return data;
+    } catch (e) {
+        return e;
+    }
+}
+
 function eliminarCuenta(nCuenta) {
     let dato = JSON.stringify({ nCuenta: nCuenta, opr: 2 });
-    let peticion = new XMLHttpRequest();
-    peticion.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            console.log(this.responseText);
-            let dat = JSON.parse(this.responseText, true);
-            pintarRespuesta(dat);
-        }
-    }
-    peticion.open('POST', "index1.php", true);
-    peticion.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    peticion.send(`dato=${dato}&cont=cuentas`);
+    let cont = "cuentas";
+    return petGenerico(dato, cont);
 }
 
 function eliminarMov(nCuenta) {
     let dato = JSON.stringify({ nCuenta: nCuenta, opr: 2 });
-    let peticion = new XMLHttpRequest();
-    peticion.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            console.log(this.responseText);
-            let dat = JSON.parse(this.responseText, true);
-            pintarRespuesta(dat);
-        }
-    }
-    peticion.open('POST', "index1.php", true);
-    peticion.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    peticion.send(`dato=${dato}&cont=movimientos`);
+    let cont = "movimientos";
+    return petGenerico(dato, cont);
 }
 
 function eliminarClientes(nCuenta) {
     let dato = JSON.stringify({ nCuenta: nCuenta, opr: 1 });
-    let peticion = new XMLHttpRequest();
-    peticion.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            console.log(this.responseText);
-            let dat = JSON.parse(this.responseText, true);
-            pintarRespuesta(dat);
-        }
-    }
-    peticion.open('POST', "index1.php", true);
-    peticion.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    peticion.send(`dato=${dato}&cont=clientes`);
+    let cont = "clientes";
+    return petGenerico(dato, cont);
 }
 
 function pedirDatos(nCuenta) {
-    const datosCuenta = pedirDatCuenta(nCuenta);
-    pintarDatos(datosCuenta, 'c_tbody');
-    const clientes = pedirClientes(nCuenta);
-    const dni1 = clientes['cu_dn1'];
-    const datosDni1 = pedirDatosClientes(dni1);
-    pintarDatos(datosDni1, 'tc_tbody');
-    const dni2 = clientes['cu_dn2'];
-    if (dni2 != '') {
+    console.log('llamado')
+    pedirDatCuenta(nCuenta).then((datos) => pintarDatos(datos['datos'], 'c_tbody'))
+    pedirClientes(nCuenta).then((clientes) => {
+        const dni1 = clientes['titulares'][0]['cu_dn1'];
+        const dni2 = clientes['titulares'][0]['cu_dn2'];
+        pedirDatosClientes(dni1).then((datosDni1) => {
+            console.log(datosDni1)
+            pintarDatos(datosDni1['datos'], 'tc_tbody');
+        });
+        if (dni2 != '') {
+            pedirDatosClientes(dni2).then((datosDni2) => {
+                console.log(datosDni2)
+                pintarDatos(datosDni2['datos'], 'tc_tbody');
+            });
+        }
+    });
+    //const datosDni1 = pedirDatosClientes(dni1);
+    //pintarDatos(datosDni1, 'tc_tbody');
+    //const dni2 = clientes['cu_dn2'];
+    /* if (dni2 != '') {
         const datosDni2 = pedirDatosClientes(dni2);
         pintarDatos(datosDni2, 'tc_tbody');
     }
-
+ */
 }
 
 function pedirDatCuenta(nCuenta) {
     let dato = JSON.stringify({ nCuenta: nCuenta, opr: 6 });
-    let peticion = new XMLHttpRequest();
-    peticion.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            console.log(this.responseText);
-            let dat = JSON.parse(this.responseText, true);
-            return dat;
-        }
-    }
-    peticion.open('POST', "index1.php", true);
-    peticion.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    peticion.send(`dato=${dato}&cont=cuentas`);
+    let cont = "cuentas";
+    return petGenerico(dato, cont);
 }
 
 function pedirClientes(nCuenta) {
     let dato = JSON.stringify({ nCuenta: nCuenta, opr: 5 });
-    let peticion = new XMLHttpRequest();
-    peticion.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            console.log(this.responseText);
-            let dat = JSON.parse(this.responseText, true);
-            return dat;
-        }
-    }
-    peticion.open('POST', "index1.php", false);
-    peticion.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    peticion.send(`dato=${dato}&cont=cuentas`);
+    let cont = "cuentas";
+    return petGenerico(dato, cont);
 }
 
 function pedirDatosClientes(dni) {
     let dato = JSON.stringify({ dni: dni, opr: 2 });
-    let peticion = new XMLHttpRequest();
-    peticion.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-            console.log(this.responseText);
-            let dat = JSON.parse(this.responseText, true);
-            return dat;
-        }
-    }
-    peticion.open('POST', "index1.php", false);
-    peticion.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    peticion.send(`dato=${dato}&cont=clientes`);
+    let cont = "clientes";
+    return petGenerico(dato, cont);
 }
 
 function pintarDatos(datos, tbody) {
-    let tbody = document.getElementById("tbody");
-    let tr = document.createElement("tr");
-    for (let dato in datos) {
-        textValor = document.createTextNode(decodeURIComponent(datos[dato]));
-        tdValor = document.createElement("td");
-        tdValor.appendChild(textValor);
-        tr.appendChild(tdValor);
+    tbody = document.getElementById(tbody);
+    for (let fila in datos) {
+        let tr = document.createElement("tr");
+        for (let dato in datos[fila]) {
+            textValor = document.createTextNode(decodeURIComponent(datos[fila][dato]));
+            tdValor = document.createElement("td");
+            tdValor.appendChild(textValor);
+            tr.appendChild(tdValor);
+        }
+        tbody.appendChild(tr);
     }
-    tbody.appendChild(tr);
 }
 
-/* function pintarR(estado, dato) {
-    console.log(dato);
-} */
+function vaciarTabla() {
+    let tbody = document.getElementById("lm_tbody");
+    if (tbody.hasChildNodes()) {
+        while (tbody.childNodes.length >= 1) {
+            tbody.removeChild(tbody.firstChild);
+        }
+    }
+}
