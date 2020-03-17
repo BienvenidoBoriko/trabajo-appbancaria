@@ -48,7 +48,8 @@ function validarCuenta(e) {
         let cpNcuenta = [...nCuenta];
         cpNcuenta.pop();
         if (cpNcuenta.reduce((acu, valor) => acu + valor) % 9 === nCuenta[nCuenta.length - 1]) {
-            nCuentaOk = validarNumCuenta(e.target.value).then((datos) => {
+            validarNumCuenta(e.target.value).then((datos) => {
+                console.log(datos)
                 if (datos['cuenta']) {
                     nCuentaOk = verSaldoCuenta(e.target.value).then((datos) => {
                         if (datos['saldo'] == -1) {

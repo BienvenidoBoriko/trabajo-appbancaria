@@ -1,18 +1,17 @@
 let cValidos = Array();
-document.addEventListener(
-    "readystatechange",
-    () => {
-        if (document.readyState == "interactive") {
-            document.forms[0].nCuenta.addEventListener(
-                "focusout",
-                validarCuenta,
-                false
-            );
-            document.forms[0].realizar.addEventListener("click", realizar, false);
-        }
-    },
-    false
-);
+document.addEventListener("readystatechange", () => {
+    if (document.readyState == "interactive") {
+        document.forms[0].nCuenta.addEventListener("focusout", validarCuenta, false);
+        document.forms[0].realizar.addEventListener("click", realizar, false);
+    }
+}, false);
+
+function validarNumCuenta(nCuenta) {
+    let nCuentaOk = true;
+    let dato = JSON.stringify({ nCuenta: nCuenta, opr: 3 });
+    let cont = "cuentas";
+    return petGenerico(dato, cont);
+}
 
 function validarCuenta(e) {
     let nCuentaOk = true;
@@ -33,10 +32,17 @@ function validarCuenta(e) {
     }
 
     if (nCuentaOk) {
-        document.getElementById("enc").innerText = " ";
-        if (cValidos.find(v => v == "nCuenta") === undefined) {
-            cValidos.push("nCuenta");
-        }
+        validarNumCuenta(e.target.value).then((datos) => {
+            if (datos['cuenta']) {
+                document.getElementById("enc").innerText = " ";
+                if (cValidos.find(v => v == "nCuenta") === undefined) {
+                    cValidos.push("nCuenta");
+                }
+            } else {
+                cValidos = cValidos.filter(v => v != "nCuenta");
+                document.getElementById("enc").innerText = "Error la cuenta no existe";
+            }
+        });
     } else {
         cValidos = cValidos.filter(v => v != "nCuenta");
         console.log(cValidos);
@@ -102,13 +108,13 @@ function realizar(e) {
         let ok = confirm(mensaje);
         if (ok) {
             modSaldoCuenta(nCuenta, importe, operacion).then(datos => {
-                console.log(datos)
+                console.log(datos);
                 if (datos["cuenta"] == true) {
                     alert("se ha modificado el saldo de la cuenta");
                     pedirClientes(nCuenta).then(clientes => {
-                        console.log(clientes['titulares'])
+                        console.log(clientes["titulares"]);
                         if (clientes["titulares"] !== undefined) {
-                            alert('titulares recibidos')
+                            alert("titulares recibidos");
                             modSaldoCliente(
                                 clientes["titulares"][0]["cu_dn1"],
                                 importe,
@@ -130,7 +136,7 @@ function realizar(e) {
                                                     `saldo del cliente ${clientes["titulares"][0]["cu_dn2"]} modificado`
                                                 );
                                                 registrarMovi(nCuenta, desc, importe).then(mov => {
-                                                    console.log(mov)
+                                                    console.log(mov);
                                                     if (mov["move"] === true) {
                                                         alert("movimiento registrado con exito");
                                                     }

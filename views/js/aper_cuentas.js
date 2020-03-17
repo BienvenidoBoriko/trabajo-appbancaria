@@ -25,6 +25,13 @@ function validarImporte(e) {
     }
 }
 
+function validarNumCuenta(nCuenta) {
+    let nCuentaOk = true;
+    let dato = JSON.stringify({ nCuenta: nCuenta, opr: 3 });
+    let cont = "cuentas";
+    return petGenerico(dato, cont);
+}
+
 function validarCuenta(e) {
     let nCuentaOk = true;
     let nCuenta = (e.target.value + "").split("").map((x) => Number(x));
@@ -41,11 +48,19 @@ function validarCuenta(e) {
     }
 
     if (nCuentaOk) {
-        document.forms[0].dni1.disabled = false;
-        document.getElementById('enc').innerText = ' ';
-        if (cValidos.find((v) => v == 'nCuenta') === undefined) {
-            cValidos.push('nCuenta');
-        }
+        validarNumCuenta(e.target.value).then((datos) => {
+            console.log(datos)
+            if (datos['cuenta'] != true) {
+                document.forms[0].dni1.disabled = false;
+                document.getElementById('enc').innerText = ' ';
+                if (cValidos.find((v) => v == 'nCuenta') === undefined) {
+                    cValidos.push('nCuenta');
+                }
+            } else {
+                cValidos = cValidos.filter(v => v != "nCuenta");
+                document.getElementById("enc").innerText = "Error la cuenta ya existe";
+            }
+        });
 
     } else {
         cValidos = cValidos.filter((v) => v != 'nCuenta');

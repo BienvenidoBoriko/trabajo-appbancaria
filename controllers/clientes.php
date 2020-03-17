@@ -1,7 +1,7 @@
 <?php
 include("models/BancoClientes.php");
 include('controllers/funcAuxi/funcionesAuxiliares.php');
-
+include('controllers/funcAuxi/validacionesClientes.php');
 $clientes = new BancoClientes();
 $errores = [];
 
@@ -66,6 +66,7 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'clientes')) {
                 }
                 break;
             case 4: //registrar cliente
+                validarNom($errores,$datos["nombre"]);
                 if (isset($datos["nombre"])) {
                     $nombre = filtrado($datos["nombre"]);
                     if (strlen($nombre)<5) {
@@ -260,3 +261,4 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'clientes')) {
 } else {
     header("Location: index1.php?mensaje=hubo un error al recibir los datos");
 }
+?>
