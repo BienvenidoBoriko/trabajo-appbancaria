@@ -1,7 +1,6 @@
 <?php
 include("models/BancoClientes.php");
 include('controllers/funcAuxi/funcionesAuxiliares.php');
-include('controllers/funcAuxi/validacionesClientes.php');
 $clientes = new BancoClientes();
 $errores = [];
 

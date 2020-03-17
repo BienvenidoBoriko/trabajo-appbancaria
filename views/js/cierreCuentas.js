@@ -23,6 +23,7 @@ async function verSaldoCuenta(nCuenta) {
 }
 
 function auxiValidarCuenta(nCuentaOk) {
+    console.log('llego')
     console.log(nCuentaOk);
     if (nCuentaOk == true) {
         document.getElementById('enc').innerText = ' ';
@@ -60,6 +61,7 @@ function validarCuenta(e) {
                             auxiValidarCuenta(-3);
                         } else {
                             auxiValidarCuenta(true);
+                            pedirDatos(e.target.value);
                         }
                     });
                 } else if (datos['cuenta'] == false) {
@@ -165,6 +167,7 @@ function pedirDatos(nCuenta) {
         const dni1 = clientes['titulares'][0]['cu_dn1'];
         const dni2 = clientes['titulares'][0]['cu_dn2'];
         pedirDatosClientes(dni1).then((datosDni1) => {
+            console.log(datosDni1)
             pintarDatos(datosDni1['datos'], 'tc_tbody');
         });
         if (dni2 != '') {
@@ -194,6 +197,7 @@ function pedirDatosClientes(dni) {
 }
 
 function pintarDatos(datos, tbody) {
+    console.log(datos)
     tbody = document.getElementById(tbody);
     for (let fila in datos) {
         let tr = document.createElement("tr");
