@@ -49,7 +49,7 @@ function validarCuenta(e) {
 
     if (nCuentaOk) {
         validarNumCuenta(e.target.value).then((datos) => {
-            console.log(datos)
+            console.log(datos['cuenta'])
             if (datos['cuenta'] != true) {
                 document.forms[0].dni1.disabled = false;
                 document.getElementById('enc').innerText = ' ';

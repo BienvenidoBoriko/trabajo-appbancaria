@@ -85,9 +85,14 @@ if ((isset($_REQUEST["cont"]) && $_REQUEST["cont"] == 'cuentas')) {
                 if (isset($datos["nCuenta"])) {
                     $nCuenta = filtrado($datos["nCuenta"]);
                     if (validarCuenta($nCuenta)) {
-                        echo json_encode(array('cuenta' => true));
+                        if($cuentas->verificaCuenta($nCuenta)){
+                            echo json_encode(array('cuenta' => true));
+                        }else{
+                            echo json_encode(array('cuenta' => false));
+                        }
+                        
                     } else {
-                        echo json_encode(array('cuenta' => false));
+                        echo json_encode(array('cuenta' => -2));
                     }
                 } else {
                     echo json_encode(array('cuenta' => -1));
