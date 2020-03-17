@@ -1,4 +1,5 @@
-<div class="container">
+<div class="container aper_cuentas">
+<div>
     <h2 class="title">Apertura de cuentas </h2>
     <form action="" method="post">
         <div class="form-group col-md-6">
@@ -30,6 +31,7 @@
         </div>
         <div id="errForm1"></div>
     </form>
+    </div>
 
 
     <div id="registrarClientes">

@@ -13,3 +13,11 @@ body {
 span {
     color: #b41919;
 }
+
+.aper_cuentas {
+    display: flex;
+}
+
+.aper_cuentas>* {
+    flex: 1;
+}
