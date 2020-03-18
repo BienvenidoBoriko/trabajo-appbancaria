@@ -47,6 +47,9 @@
         <?php include($plantilla) ?>
     </main>
 
+    <footer class="footer">
+        Copyright © 2020 appBancaria | pagina <?php echo $titulo; ?>
+    </footer>
 </body>
 
 </html>

@@ -9,13 +9,13 @@
             </label>
         </div>
         <div class="form-group col-md-6">
-            <label for="id_dni1">Dni1
+            <label for="id_dni1">Dni del primer titular
                 <input type="text" class="form-control" name="dni1" id="id_dni1" disabled="disabled" required="required">
                 <span id="edni1"></span>
             </label>
         </div>
         <div class="form-group col-md-6">
-            <label for="id_dni2">Dni2
+            <label for="id_dni2">Dni del segundo titular
                 <input type="text" class="form-control" name="dni2" id="id_dni2" disabled="disabled" placeholder="opcional"><span>*</span>
                 <span id="edni2"></span>
             </label>
